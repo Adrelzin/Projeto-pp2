@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD livros</title>
+</head>
+<body>
+    <h1>CRUD livros</h1>
+    
+    <nav>
+        <a href="/usuarios">Ver Usuários</a> | 
+        <a href="/logout">Logout</a>
+    </nav>
+    <br>
+    
+    <form action="/criar" method="post">
+        <input type="text" name="nome" 
+        placeholder="Digite o nome do livro" required>
+        <input type="submit" value="Inserir">
+    </form>
+
+    <h2>Lista de Livros:</h2>
+    <ul>
+        {% for livro in livros %}
+            <li>{{ livro }}</li>
+        {% endfor %}
+    </ul>
+    
+    <hr>
+
+    <h2> Alterar livros:</h2>
+        <form action = "/alterar" method="post">
+            <input type="text" name = "old_name" placeholder = "Nome atual" required>
+            <input type="text "name = "new_name" placeholder= "Novo nome" required>
+            <input type = "submit" value = "Alterar">
+        </form>
+  
+
+    <hr>
+
+    <h2>Apagar livro:</h2>
+    <form action="/apagar" method="post">
+        <input type="text" name="nome" placeholder="Nome do livro" required>
+        <input type="submit" value="Apagar">
+    </form>
+    
+    <hr>
+</body>
+</html>

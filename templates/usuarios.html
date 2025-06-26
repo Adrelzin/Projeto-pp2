@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuários Cadastrados - Sistema de Livros</title>
+</head>
+<body>
+    <h1>Usuários Cadastrados</h1>
+    
+    <nav>
+        <a href="/index">Voltar ao CRUD</a> | 
+        <a href="/logout">Logout</a>
+    </nav>
+    <br>
+
+    <h2>Lista de Usuários:</h2>
+    <table border="1">
+        <tr>
+            <th>Usuário</th>
+            <th>Senha</th>
+        </tr>
+        {% for usuario, senha in usuarios.items() %}
+        <tr>
+            <td>{{ usuario }}</td>
+            <td>{{ senha }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><strong>Total de usuários:</strong> {{ usuarios|length }}</p>
+</body>
+</html>

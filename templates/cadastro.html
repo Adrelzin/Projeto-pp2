@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro - Sistema de Livros</title>
+</head>
+<body>
+    <h1>Cadastro de Usuário</h1>
+    
+    {% if erro %}
+        <p><strong>{{ erro }}</strong></p>
+    {% endif %}
+    
+    <form method="post">
+        <input type="text" name="nome" placeholder="Novo usuário" required>
+        <br><br>
+        <input type="password" name="senha" placeholder="Nova senha" required>
+        <br><br>
+        <input type="submit" value="Cadastrar">
+    </form>
+    <p>Já tem uma conta? <a href="/login">Fazer login</a></p>
+</body>
+</html>
