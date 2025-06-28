@@ -3,16 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <title>CRUD livros</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+        }
+
+        header{
+            display: flex;
+            background-color: green;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            border: none;
+            box-sizing: border-box;
+            align-items: center;
+        }
+
+        header img{
+            margin-right: 20px;
+        }
+
+        header h1{
+            color: aliceblue;
+            margin: 0 20px 0 0;
+        }
+
+        header nav{
+            display: flex;
+            gap: 20px;
+            margin-left: 0;
+            align-items: center;
+        }
+
+        header nav h1{
+            color: aliceblue;
+            margin: 0;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 8px 2px;
+            border-radius: 0;
+        }
+
+        header hr{
+            height: 150px;
+            width: 2px;
+            background-color: white;
+            border: none;
+            margin: 0 20px;
+        }
+
+        main{
+            padding: 1rem;
+        }
+
+        footer{
+            background-color: black;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            border: none;
+            box-sizing: border-box;
+        }
+
+        footer p{
+            color: aliceblue;
+        }
+
+    </style>
 </head>
 <body>
+    <header>
+        <img src="/static/logo.png" alt="Logo">
+        <h1>Matricula</h1>
+        <hr>
+        <nav>
+            <h1>Redes</h1>
+            <h1>Estado</h1>
+            <h1>Campus</h1>
+            <h1>Ajuda</h1>
+        </nav>
+    </header>
     <h1>CRUD livros</h1>
     
+
+
     <nav>
         <a href="/usuarios">Ver Usuários</a> | 
         <a href="/logout">Logout</a>
     </nav>
     <br>
     
+    <h2>Adicionar livros</h2>
     <form action="/criar" method="post">
         <input type="text" name="nome" 
         placeholder="Digite o nome do livro" required>
@@ -45,5 +130,10 @@
     </form>
     
     <hr>
+
+    <footer>
+        <p>&copy; 2025 MetFrix. Todos os direitos reservados.</p>
+        <p>Contato: contato@metfrix.com | Redes sociais: @MetFrix</p>
+    </footer>
 </body>
 </html>
