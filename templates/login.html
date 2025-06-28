@@ -3,21 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - Sistema de Livros</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+
+        .container {
+            background-color: #556b2f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 350px;
+            min-height: 400px;
+        }
+
+        h1 {
+            color: white;
+            margin: 0 0 20px 0;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        input {
+            margin: 8px 0;
+            padding: 12px;
+            width: 80%;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            color: white;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        p a {
+            color: #ffff99;
+            text-decoration: underline;
+        }
+
+        p a:hover {
+            color: #ffffff;
+        }
+
+        .erro {
+            background-color: #ff4444;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
 </head>
-<body>
-    <h1>Login</h1>
-    
-    {% if erro %}
-        <p><strong>{{ erro }}</strong></p>
-    {% endif %}
-    
-    <form method="post" action="/login">
-        <input type="text" name="nome" placeholder="Usuário" required>
-        <br><br>
-        <input type="password" name="senha" placeholder="Senha" required>
-        <br><br>
-        <input type="submit" value="Entrar">
-        <p>Não tem uma conta? <a href="/cadastro">Cadastre-se</a></p>
-    </form>
-</body>
+    <body>
+        <div class = "container">
+            <h1>Login</h1>
+            
+            {% if erro %}
+                <p><strong>{{ erro }}</strong></p>
+            {% endif %}
+            
+            <form method="post" action="/login">
+                <input type="text" name="nome" placeholder="Usuário" required>
+                <br><br>
+                <input type="password" name="senha" placeholder="Senha" required>
+                <br><br>
+                <input type="submit" value="Entrar">
+                <p>Não tem uma conta? <a href="/cadastro">Cadastre-se</a></p>
+            </form>
+        </div>
+    </body>
 </html>
