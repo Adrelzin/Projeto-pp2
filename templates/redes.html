@@ -116,14 +116,6 @@
             animation: pulse 0.5s ease;
         }
 
-        footer {
-            background-color: green;
-            text-align: center;
-            padding: 1.5rem;
-            color: white;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
-        }
-
         .seta {
             position: absolute;
             top: 20px;
@@ -154,6 +146,17 @@
             height: 40px;
             filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
+        
+        footer {
+            background-color: green;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.8s ease;
+        }
     </style>
 </head>
 <body>
@@ -161,6 +164,7 @@
         <button class="seta" onclick="window.location.href='/'">
             <img src="/static/download-removebg-preview.png" alt="Voltar">
         </button>
+        <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
         <h1>Siga a Semente Diária</h1>
     </header>
 
@@ -201,8 +205,6 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Semente diária. Todos os direitos reservados.</p>
-        <p>Contato: contato@metfrix.com</p>
     </footer>
 </body>
 </html>
