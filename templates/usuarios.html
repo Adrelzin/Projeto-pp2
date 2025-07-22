@@ -2,32 +2,288 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
     <title>Usuários Cadastrados - Sistema de Livros</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-size: 18px;
+            background-color: #dac8b3;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #556b2f;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        nav {
+            background-color: #556b2f;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 8px 15px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .toggle-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            background-color: #556b2f;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background-color: #6b8c3f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #556b2f;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        .senha-hidden {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .total-usuarios {
+            background-color: #556b2f;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-right: 5px;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .aviso {
+            background-color: #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .email-cell {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
 </head>
 <body>
-    <h1>Usuários Cadastrados</h1>
-    
-    <nav>
-        <a href="/index">Voltar ao CRUD</a> | 
-        <a href="/logout">Logout</a>
-    </nav>
-    <br>
+    <div class="container">
+        <h1>Usuários Cadastrados</h1>
+        
+        <nav>
+            <a href="{{ url_for('index') }}">← Voltar ao Início</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
 
-    <h2>Lista de Usuários:</h2>
-    <table border="1">
-        <tr>
-            <th>Usuário</th>
-            <th>Senha</th>
-        </tr>
-        {% for usuario, senha in usuarios.items() %}
-        <tr>
-            <td>{{ usuario }}</td>
-            <td>{{ senha }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% if is_admin %}
+        <div class="toggle-container">
+            <button class="toggle-btn" onclick="toggleSenhas()">
+                <span id="toggle-text">Mostrar Senhas</span>
+            </button>
+        </div>
+        {% else %}
+        <div class="aviso">
+            ⚠️ Apenas o administrador pode visualizar senhas e gerenciar usuários
+        </div>
+        {% endif %}
 
-    <p><strong>Total de usuários:</strong> {{ usuarios|length }}</p>
+        <h2>Lista de Usuários:</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Usuário</th>
+                    <th>Email</th>
+                    {% if is_admin %}
+                    <th>Senha</th>
+                    <th>Ações</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><span class="status-icon"></span>Ativo</td>
+                    <td>{{ usuario.nome }}</td>
+                    <td class="email-cell">{{ usuario.email }}</td>
+                    {% if is_admin %}
+                    <td class="senha-cell">
+                        <span class="senha-hidden">••••••••</span>
+                        <span class="senha-real" style="display: none;">{{ usuario.senha_original }}</span>
+                    </td>
+                    <td>
+                        {% if usuario.nome != session.usuario %}
+                        <form method="POST" action="{{ url_for('excluir_usuario', nome_usuario=usuario.nome) }}" style="display: inline;" 
+                              onsubmit="return confirm('Tem certeza que deseja excluir o usuário {{ usuario.nome }}?')">
+                            <button type="submit" class="delete-btn">🗑️ Excluir</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #6c757d; font-size: 18px;">Usuário atual</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-usuarios">
+            <strong>Total de usuários cadastrados: {{ usuarios|length }}</strong>
+        </div>
+    </div>
+
+    <script>
+        let senhasVisiveis = false;
+
+        function toggleSenhas() {
+            const senhasHidden = document.querySelectorAll('.senha-hidden');
+            const senhasReal = document.querySelectorAll('.senha-real');
+            const toggleText = document.getElementById('toggle-text');
+
+            if (senhasVisiveis) {
+                // Esconder senhas
+                senhasHidden.forEach(senha => senha.style.display = 'inline');
+                senhasReal.forEach(senha => senha.style.display = 'none');
+                toggleText.textContent = 'Mostrar Senhas';
+                senhasVisiveis = false;
+            } else {
+                // Mostrar senhas
+                senhasHidden.forEach(senha => senha.style.display = 'none');
+                senhasReal.forEach(senha => senha.style.display = 'inline');
+                toggleText.textContent = 'Ocultar Senhas';
+                senhasVisiveis = true;
+            }
+        }
+
+        // Adicionar efeito de hover nas linhas da tabela
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.01)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Auto-hide flash messages after 5 seconds
+            const flashMessages = document.querySelector('.flash-messages');
+            if (flashMessages) {
+                setTimeout(function() {
+                    flashMessages.style.transition = 'opacity 0.5s ease';
+                    flashMessages.style.opacity = '0';
+                    setTimeout(() => flashMessages.remove(), 500);
+                }, 5000);
+            }
+        });
+    </script>
 </body>
 </html>
