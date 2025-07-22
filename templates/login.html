@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Login - Sistema de Livros</title>
+    <title>Login - Semente Diária</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
     <style>
         body {
@@ -12,7 +12,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: white;
+            background-color: #dac8b3;
+            font-family: Arial, sans-serif;
         }
 
         .container {
@@ -21,18 +22,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+            padding: 40px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 350px;
-            min-height: 400px;
+            width: 450px;
+            min-height: 500px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
         }
 
         h1 {
             color: white;
-            margin: 0 0 20px 0;
+            margin: 0 0 30px 0;
             text-align: center;
-            font-size: 24px;
+            font-size: 28px;
         }
 
         form {
@@ -40,33 +47,41 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin: 20px 0;
+            margin: 30px 0;
         }
 
         input {
-            margin: 8px 0;
-            padding: 12px;
-            width: 80%;
+            margin: 10px 0;
+            padding: 15px;
+            width: 85%;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: 2px solid #dac8b3;
         }
 
         input[type="submit"] {
-            background-color: #007bff;
-            color: white;
+            background-color: #dac8b3;
+            color: #556b2f;
             cursor: pointer;
             font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
         }
 
         input[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #c7b49f;
         }
 
         p {
             color: white;
             text-align: center;
-            margin: 10px 0;
+            margin: 15px 0;
+            font-size: 18px;
         }
 
         p a {
@@ -81,28 +96,116 @@
         .erro {
             background-color: #ff4444;
             color: white;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
-            margin: 10px 0;
+            margin: 15px 0;
+            text-align: center;
+            width: 85%;
+            font-size: 18px;
+            display: block;
+        }
+
+        .success {
+            background-color: #44aa44;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            width: 85%;
+            font-size: 18px;
+        }
+
+        .help-text {
+            font-size: 18px;
+            color: #cccccc;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* Estilo para mensagens de erro específicas */
+        .erro-login {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            width: 85%;
+            font-size: 16px;
+            border: 1px solid #bd2130;
+        }
+
+        .erro-senha {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            width: 85%;
+            font-size: 16px;
+            border: 1px solid #bd2130;
         }
     </style>
 </head>
-    <body>
-        <div class = "container">
-            <h1>Login</h1>
+<body>
+    <div class="container">
+        {% if url_for('static', filename='logo.png') %}
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+        {% endif %}
+        
+        <h1>LOGIN</h1>
+        
+        <!-- Mensagens de erro específicas -->
+        {% if erro %}
+            <div class="erro">{{ erro }}</div>
+        {% endif %}
+        
+        {% if erro_login %}
+            <div class="erro-login">❌ Usuário ou email não encontrado</div>
+        {% endif %}
+        
+        {% if erro_senha %}
+            <div class="erro-senha">❌ Senha incorreta</div>
+        {% endif %}
+        
+        {% if erro_geral %}
+            <div class="erro">❌ {{ erro_geral }}</div>
+        {% endif %}
+        
+        <form method="post" action="/login">
+            <div class="help-text">Digite seu nome de usuário ou email</div>
+            <input type="text" name="login_input" placeholder="Usuário ou Email" required>
             
-            {% if erro %}
-                <p><strong>{{ erro }}</strong></p>
-            {% endif %}
+            <input type="password" name="senha" placeholder="Senha" required>
             
-            <form method="post" action="/login">
-                <input type="text" name="nome" placeholder="Usuário" required>
-                <br><br>
-                <input type="password" name="senha" placeholder="Senha" required>
-                <br><br>
-                <input type="submit" value="Entrar">
-                <p>Não tem uma conta? <a href="/cadastro">Cadastre-se</a></p>
-            </form>
-        </div>
-    </body>
+            <input type="submit" value="Entrar">
+        </form>
+        
+        <p>Não tem uma conta? <a href="/cadastro">Cadastre-se</a></p>
+    </div>
+
+    <script>
+        // Script para simular validação de login (para demonstração)
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Esta é apenas uma demonstração - em produção, a validação deve ser feita no servidor
+            const loginInput = document.querySelector('input[name="login_input"]').value;
+            const senha = document.querySelector('input[name="senha"]').value;
+            
+            // Exemplo de validação básica no frontend (apenas para demonstração)
+            if (loginInput.length < 3) {
+                e.preventDefault();
+                alert('Usuário ou email deve ter pelo menos 3 caracteres');
+                return;
+            }
+            
+            if (senha.length < 4) {
+                e.preventDefault();
+                alert('Senha deve ter pelo menos 4 caracteres');
+                return;
+            }
+        });
+    </script>
+</body>
 </html>
