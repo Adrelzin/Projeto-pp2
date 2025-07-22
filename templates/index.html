@@ -128,10 +128,6 @@
             animation: slideIn 0.8s ease;
         }
 
-        footer p {
-            color: aliceblue;
-        }
-
         .containershow {
             width: 90%;
             max-width: 2000px;
@@ -163,8 +159,8 @@
         .slide img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            background-color: #dac8b3;
+            object-fit: cover;
+            background-color: transparent;
             transition: transform 0.5s ease;
         }
 
@@ -353,7 +349,7 @@
         </nav>
         
         <div class="header-right">
-                {% if is_admin %}
+                {% if session.usuario == 'admin' %}
                     <a href="{{ url_for('listar_usuarios') }}">Ver Usuários</a>
                 {% endif %}
             <a href="{{ url_for('logout') }}">Logout</a>
@@ -363,15 +359,15 @@
 
     <div class="containershow">
         <div class="slide active">
-            <img src="{{ url_for('static', filename='img1slide.png') }}" alt="Slide 1">
+            <img src="{{ url_for('static', filename='Slide1.png') }}" alt="Slide 1">
             <div class="slide-text">A natureza é o livro onde Deus escreveu sua sabedoria</div>
         </div>
         <div class="slide">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Slide 2">
+            <img src="{{ url_for('static', filename='Slide2.png') }}" alt="Slide 2">
             <div class="slide-text">Cada planta tem uma história para contar</div>
         </div>
         <div class="slide">
-            <img src="{{ url_for('static', filename='img1slide.png') }}" alt="Slide 3">
+            <img src="{{ url_for('static', filename='Slide3.png') }}" alt="Slide 3">
             <div class="slide-text">Cultive hoje o jardim do amanhã</div>
         </div>
         
@@ -408,10 +404,8 @@
     </div>
 
     <footer>
-        <p>&copy; 2025 Semente diária. Todos os direitos reservados.</p>
-        <p>Contato: contato@metfrix.com | Redes sociais: @MetFrix</p>
     </footer>
-
+    
     <script>
         let currentSlideIndex = 0;
         const slides = document.querySelectorAll('.slide');
