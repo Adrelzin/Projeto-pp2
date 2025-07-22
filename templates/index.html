@@ -2,51 +2,109 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>CRUD livros</title>
+    <title>Semente Diária</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
     <style>
-        body{
-            margin: 0;
-            padding: 0;
+                * {
+            box-sizing: border-box;
         }
 
-        header{
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #dac8b3;
+            font-family: Arial, sans-serif;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
             display: flex;
             background-color: green;
             width: 100%;
             margin: 0;
             padding: 1rem;
-            border: none;
-            box-sizing: border-box;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .header-left {
+            display: flex;
             align-items: center;
         }
 
-        header img{
+        header img {
             margin-right: 20px;
+            border-radius: 50%;
+            object-fit: cover;
         }
 
-        header h1{
+        header .header-left h1 {
             color: aliceblue;
             margin: 0 20px 0 0;
         }
 
-        header nav{
+        header nav {
             display: flex;
-            gap: 20px;
-            margin-left: 0;
             align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 100px;
         }
 
-        header nav h1{
+        header nav h1 {
             color: aliceblue;
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 8px 2px;
-            border-radius: 0;
+            padding: 12px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
-        header hr{
+        header nav h1:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header .header-right a {
+            color: aliceblue;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        header .header-right a:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
+        }
+
+        header hr {
             height: 150px;
             width: 2px;
             background-color: white;
@@ -54,86 +112,339 @@
             margin: 0 20px;
         }
 
-        main{
+        main {
             padding: 1rem;
+            animation: slideIn 0.8s ease;
         }
 
-        footer{
-            background-color: black;
+        footer {
+            background-color: green;
             text-align: center;
             padding: 20px;
-            position: relative;
-            bottom: 0;
             width: 100%;
-            border: none;
-            box-sizing: border-box;
+            position: fixed;
+            bottom: 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.8s ease;
         }
 
-        footer p{
+        footer p {
             color: aliceblue;
         }
 
+        .containershow {
+            width: 90%;
+            max-width: 2000px;
+            height: 400px;
+            margin: 20px auto;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .containershow:hover {
+            transform: scale(1.02);
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: none;
+            position: relative;
+            animation: slideIn 0.6s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background-color: #dac8b3;
+            transition: transform 0.5s ease;
+        }
+
+        .slide:hover img {
+            transform: scale(1.05);
+        }
+
+        .slide-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.7);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            transform: translateY(0);
+            transition: transform 0.4s ease;
+        }
+
+        .slide:hover .slide-text {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .slide-nav {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dot.active {
+            background-color: white;
+            animation: bounce 1s;
+        }
+
+        .dot:hover {
+            transform: scale(1.3);
+        }
+
+        .imgconttain {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            position: relative;
+            height: 200px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            transition: all 0.4s ease;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+            z-index: 2;
+        }
+
+        .card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover img {
+            transform: scale(1.1);
+        }
+
+        .card-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.7);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            transform: translateY(0);
+            transition: all 0.4s ease;
+            z-index: 3;
+        }
+
+        .card:hover .card-text {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            header nav {
+                position: static;
+                transform: none;
+                order: 2;
+                gap: 50px;
+            }
+
+            .header-right {
+                order: 3;
+            }
+
+            .card {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            header nav {
+                position: static;
+                transform: none;
+                gap: 30px;
+            }
+
+            .imgconttain {
+                padding: 10px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                height: 150px;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
-        <img src="/static/logo.png" alt="Logo">
-        <h1>Matricula</h1>
-        <hr>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h1>Bem-vindo, {{ session.usuario if session.usuario else 'Matricula' }} !</h1>
+            <hr>
+        </div>
+        
         <nav>
-            <h1>Redes</h1>
-            <h1>Estado</h1>
-            <h1>Campus</h1>
-            <h1>Ajuda</h1>
+            <h1><a href="{{ url_for('redes') }}">Redes</a></h1>
+            <h1><a href="{{ url_for('projetos') }}">Projetos</a></h1>
+            <h1><a href="{{ url_for('campus') }}">Campus</a></h1>
+            <h1><a href="{{ url_for('ajuda') }}">Ajuda</a></h1>
         </nav>
+        
+        <div class="header-right">
+                {% if is_admin %}
+                    <a href="{{ url_for('listar_usuarios') }}">Ver Usuários</a>
+                {% endif %}
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+        
     </header>
-    <h1>CRUD livros</h1>
-    
 
+    <div class="containershow">
+        <div class="slide active">
+            <img src="{{ url_for('static', filename='img1slide.png') }}" alt="Slide 1">
+            <div class="slide-text">A natureza é o livro onde Deus escreveu sua sabedoria</div>
+        </div>
+        <div class="slide">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Slide 2">
+            <div class="slide-text">Cada planta tem uma história para contar</div>
+        </div>
+        <div class="slide">
+            <img src="{{ url_for('static', filename='img1slide.png') }}" alt="Slide 3">
+            <div class="slide-text">Cultive hoje o jardim do amanhã</div>
+        </div>
+        
+        <div class="slide-nav">
+            <span class="dot active" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+        </div>
+    </div>
+        
+    <div class="imgconttain">
+        <div class="cards-container">
+            <div class="card">
+                <a href="{{ url_for('servicos') }}">
+                    <img src="{{ url_for('static', filename='1.png') }}" alt="Serviços">
+                    <div class="card-text">serviços</div>
+                </a>
+            </div>
 
-    <nav>
-        <a href="/usuarios">Ver Usuários</a> | 
-        <a href="/logout">Logout</a>
-    </nav>
-    <br>
-    
-    <h2>Adicionar livros</h2>
-    <form action="/criar" method="post">
-        <input type="text" name="nome" 
-        placeholder="Digite o nome do livro" required>
-        <input type="submit" value="Inserir">
-    </form>
+            <div class="card">
+                <a href="{{ url_for('plantas') }}">
+                    <img src="{{ url_for('static', filename='2.png') }}" alt="Plantas">
+                    <div class="card-text">plantas</div>
+                </a>
+            </div>
 
-    <h2>Lista de Livros:</h2>
-    <ul>
-        {% for livro in livros %}
-            <li>{{ livro }}</li>
-        {% endfor %}
-    </ul>
-    
-    <hr>
-
-    <h2> Alterar livros:</h2>
-        <form action = "/alterar" method="post">
-            <input type="text" name = "old_name" placeholder = "Nome atual" required>
-            <input type="text "name = "new_name" placeholder= "Novo nome" required>
-            <input type = "submit" value = "Alterar">
-        </form>
-  
-
-    <hr>
-
-    <h2>Apagar livro:</h2>
-    <form action="/apagar" method="post">
-        <input type="text" name="nome" placeholder="Nome do livro" required>
-        <input type="submit" value="Apagar">
-    </form>
-    
-    <hr>
+            <div class="card">
+                <a href="{{ url_for('calendario') }}">
+                    <img src="{{ url_for('static', filename='3.png') }}" alt="Calendário">
+                    <div class="card-text">calendário</div>
+                </a>
+            </div>
+        </div>
+    </div>
 
     <footer>
-        <p>&copy; 2025 MetFrix. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Semente diária. Todos os direitos reservados.</p>
         <p>Contato: contato@metfrix.com | Redes sociais: @MetFrix</p>
     </footer>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+        }
+
+        function currentSlide(index) {
+            currentSlideIndex = index - 1;
+            showSlide(currentSlideIndex);
+        }
+
+        setInterval(() => {
+            currentSlideIndex++;
+            if (currentSlideIndex >= slides.length) {
+                currentSlideIndex = 0;
+            }
+            showSlide(currentSlideIndex);
+        }, 5000);
+
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.containershow');
+            if (parallax) {
+                parallax.style.transform = `translateY(${scrolled * 0.1}px)`;
+            }
+        });
+    </script>
 </body>
 </html>
