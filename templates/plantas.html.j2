@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantas - Semente Diária</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #dac8b3; font-family: Arial, sans-serif; min-height: 100vh; padding-bottom: 120px; }
+        
+        header { display: flex; background: green; width: 100%; padding: 1rem; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-left { display: flex; align-items: center; }
+        .header-left h1 { color: white; margin-left: 1rem; }
+        .nav-links { display: flex; gap: 1rem; }
+        .nav-links a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; }
+        
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .page-title { text-align: center; color: #2d5016; margin-bottom: 2rem; font-size: 2.5rem; }
+        
+        .add-buttons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; position: relative; left: 50px;}
+        .add-plant-btn { background: #6b7f3c; border: none; border-radius: 20px; width: 250px; height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .add-plant-btn .plus-icon { color: #d4c2a7; font-size: 60px; font-weight: bold; margin-bottom: 15px; }
+        .add-plant-btn span { color: #d4c2a7; font-size: 18px; }
+        
+        .plant-slot { width: 250px; height: 250px; border-radius: 20px; overflow: hidden; position: relative; cursor: pointer; }
+        .plant-slot-card { width: 100%; height: 100%; background: white; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 20px; }
+        .plant-slot-card h4 { color: #2d5016; font-size: 1.3rem; text-align: center; margin-top: 0.8rem; word-break: break-word; }
+        .plant-slot-card .plant-emoji { font-size: 50px; margin-bottom: 0.8rem; }
+        .plant-slot-card .plant-image { width: 130px; height: 130px; object-fit: cover; border-radius: 15px; margin-bottom: 0.8rem; }
+        
+        .add-plant-section { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .add-plant-section h2 { color: #2d5016; margin-bottom: 1.5rem; text-align: center; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group label { color: #2d5016; font-weight: bold; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea { padding: 0.75rem; border: 2px solid #dac8b3; border-radius: 8px; font-size: 1rem; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: green; }
+        .form-group input[type="file"] { padding: 0.5rem; border: 2px dashed #dac8b3; background: #f9f9f9; }
+        .image-preview { margin-top: 0.5rem; max-width: 200px; max-height: 200px; border-radius: 8px; display: none; }
+        
+        .btn { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: green; color: white; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        
+        .plants-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2rem; }
+        .plant-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-left: 4px solid green; }
+        .plant-card h3 { color: #2d5016; margin-bottom: 0.5rem; font-size: 1.4rem; }
+        .plant-type { background: #e8f5e8; color: #2d5016; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold; display: inline-block; margin-bottom: 1rem; }
+        .plant-info { margin-bottom: 1rem; }
+        .plant-info p { margin-bottom: 0.5rem; color: #555; }
+        .plant-info strong { color: #2d5016; }
+        .plant-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .plant-actions .btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
+        .plant-card-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; float: right; margin-left: 1rem; margin-bottom: 1rem; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #666; }
+        .empty-state h3 { color: #2d5016; margin-bottom: 1rem; }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 1% auto; padding: 3rem; border-radius: 15px; width: 95%; max-width: 900px; max-height: 95vh; overflow-y: auto; }
+        .close { color: #aaa; float: right; font-size: 45px; font-weight: bold; cursor: pointer; margin-top: -20px; }
+        
+        /* Estilos específicos para elementos maiores no modal */
+        .modal h2 { font-size: 2.2rem; color: #2d5016; margin-bottom: 2rem; text-align: center; }
+        .modal h3 { font-size: 1.8rem; color: #2d5016; margin-bottom: 1.5rem; }
+        .modal p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 1rem; }
+        .modal strong { font-size: 1.2rem; }
+        .modal .plant-type { font-size: 1.1rem; padding: 0.5rem 1.2rem; }
+        .modal .plant-info { background-color: #f8f9fa; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
+        .modal-plant-image { max-width: 600px; max-height: 400px; object-fit: cover; border-radius: 15px; margin: 2rem 0; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        
+        /* Formulário no modal de edição com elementos maiores */
+        .modal .form-group { margin-bottom: 1.5rem; }
+        .modal .form-group label { font-size: 1.1rem; font-weight: bold; margin-bottom: 0.8rem; color: #2d5016; }
+        .modal .form-group input, .modal .form-group select, .modal .form-group textarea { 
+            padding: 1rem; 
+            font-size: 1.1rem; 
+            border: 2px solid #dac8b3; 
+            border-radius: 10px; 
+            min-height: 50px;
+        }
+        .modal .form-group textarea { min-height: 100px; }
+        .modal .form-grid { gap: 1.5rem; margin-bottom: 1.5rem; }
+        .modal .btn { 
+            padding: 1rem 2rem; 
+            font-size: 1.1rem; 
+            border-radius: 10px; 
+            min-height: 50px;
+        }
+        .modal .image-preview { 
+            margin-top: 1rem; 
+            max-width: 300px; 
+            max-height: 300px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Botões do modal maiores */
+        .modal .modal-buttons { 
+            display: flex; 
+            gap: 1.5rem; 
+            justify-content: flex-end; 
+            margin-top: 2rem; 
+        }
+        
+        footer { background: green; text-align: center; padding: 20px; width: 100%; position: fixed; bottom: 0; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); }
+        footer p { color: aliceblue; margin: 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left"><h1>🌱 Minhas Plantas</h1></div>
+        <div class="nav-links">
+            <a href="/index">Início</a>
+            <a href="/logout">Sair</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Meu Jardim Pessoal</h1>
+        <div class="add-buttons-grid">
+            {% for i in range(4) %}
+                {% if plantas and plantas[i] %}
+                    <div class="plant-slot" onclick="viewPlant({{ plantas[i].id }}, '{{ plantas[i].nome }}', '{{ plantas[i].tipo }}', '{{ plantas[i].descricao or '' }}', '{{ plantas[i].data_plantio or '' }}', '{{ plantas[i].observacoes or '' }}', '{{ plantas[i].imagem or '' }}')">
+                        <div class="plant-slot-card">
+                            {% if plantas[i].imagem %}<img src="{{ url_for('static', filename='uploads/' + plantas[i].imagem) }}" alt="{{ plantas[i].nome }}" class="plant-image">{% else %}<div class="plant-emoji">🌱</div>{% endif %}
+                            <h4>{{ plantas[i].nome }}</h4>
+                        </div>
+                    </div>
+                {% else %}
+                    <button class="add-plant-btn" onclick="showAddPlantForm()"><div class="plus-icon">+</div><span>adicionar</span></button>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="add-plant-section" id="addPlantSection" style="display:none;">
+            <h2>➕ Adicionar Nova Planta</h2>
+            <form method="POST" action="/adicionar_planta" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nome">Nome da Planta *</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo *</label>
+                        <select id="tipo" name="tipo" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="Suculenta">Suculenta</option>
+                            <option value="Cacto">Cacto</option>
+                            <option value="Flor">Flor</option>
+                            <option value="Erva">Erva</option>
+                            <option value="Árvore">Árvore</option>
+                            <option value="Arbusto">Arbusto</option>
+                            <option value="Verdura">Verdura</option>
+                            <option value="Fruta">Fruta</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="data_plantio">Data do Plantio</label>
+                        <input type="date" id="data_plantio" name="data_plantio">
+                    </div>
+                    <div class="form-group">
+                        <label for="imagem">Imagem da Planta</label>
+                        <input type="file" id="imagem" name="imagem" accept="image/*" onchange="previewImage(this, 'imagePreview')">
+                        <img id="imagePreview" class="image-preview" alt="Preview da imagem">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="3" placeholder="Descreva sua planta..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="observacoes">Observações</label>
+                    <textarea id="observacoes" name="observacoes" rows="3" placeholder="Cuidados especiais, localização, etc..."></textarea>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddPlantForm()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">🌱 Adicionar Planta</button>
+                </div>
+            </form>
+        </div>
+
+        {% if plantas and plantas|length > 4 %}
+            <div class="plants-grid">
+                {% for planta in plantas[4:] %}
+                    <div class="plant-card">
+                        {% if planta.imagem %}<img src="{{ url_for('static', filename='uploads/' + planta.imagem) }}" alt="{{ planta.nome }}" class="plant-card-image">{% endif %}
+                        <h3>{{ planta.nome }}</h3>
+                        <span class="plant-type">{{ planta.tipo }}</span>
+                        <div class="plant-info">
+                            {% if planta.descricao %}<p><strong>Descrição:</strong> {{ planta.descricao }}</p>{% endif %}
+                            {% if planta.data_plantio %}<p><strong>Plantada em:</strong> {{ planta.data_plantio }}</p>{% endif %}
+                            {% if planta.observacoes %}<p><strong>Observações:</strong> {{ planta.observacoes }}</p>{% endif %}
+                        </div>
+                        <div class="plant-actions">
+                            <button class="btn btn-secondary" onclick="editPlant({{ planta.id }}, '{{ planta.nome }}', '{{ planta.tipo }}', '{{ planta.descricao or '' }}', '{{ planta.data_plantio or '' }}', '{{ planta.observacoes or '' }}', '{{ planta.imagem or '' }}')">✏️ Editar</button>
+                            <form method="POST" action="/excluir_planta/{{ planta.id }}" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta planta?')">
+                                <button type="submit" class="btn btn-danger">🗑️ Excluir</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% elif not plantas %}
+            <div class="empty-state">
+                <h3>Nenhuma planta cadastrada</h3>
+                <p>Comece adicionando sua primeira planta usando o formulário acima!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeViewModal()">&times;</span>
+            <h2>🌱 Detalhes da Planta</h2>
+            <div id="plantDetails"></div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="editPlantFromView()">✏️ Editar</button>
+                <button type="button" class="btn btn-danger" onclick="deletePlantFromView()">🗑️ Excluir</button>
+                <button type="button" class="btn btn-primary" onclick="closeViewModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>✏️ Editar Planta</h2>
+            <form id="editForm" method="POST" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit_nome">Nome da Planta *</label>
+                        <input type="text" id="edit_nome" name="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_tipo">Tipo *</label>
+                        <select id="edit_tipo" name="tipo" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="Suculenta">Suculenta</option>
+                            <option value="Cacto">Cacto</option>
+                            <option value="Flor">Flor</option>
+                            <option value="Erva">Erva</option>
+                            <option value="Árvore">Árvore</option>
+                            <option value="Arbusto">Arbusto</option>
+                            <option value="Verdura">Verdura</option>
+                            <option value="Fruta">Fruta</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_data_plantio">Data do Plantio</label>
+                        <input type="date" id="edit_data_plantio" name="data_plantio">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_imagem">Imagem da Planta</label>
+                        <input type="file" id="edit_imagem" name="imagem" accept="image/*" onchange="previewImage(this, 'editImagePreview')">
+                        <img id="editImagePreview" class="image-preview" alt="Preview da imagem">
+                        <div id="currentImageInfo" style="margin-top:1rem;color:#666;font-size:1rem;"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit_descricao">Descrição</label>
+                    <textarea id="edit_descricao" name="descricao" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit_observacoes">Observações</label>
+                    <textarea id="edit_observacoes" name="observacoes" rows="4"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">💾 Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Semente diária. Todos os direitos reservados.</p>
+        <p>Contato: contato@metfrix.com | Redes sociais: @MetFrix</p>
+    </footer>
+
+    <script>
+        let currentPlantId = null;
+        let currentPlantData = {};
+
+        function previewImage(input, previewId) {
+            const file = input.files[0];
+            const preview = document.getElementById(previewId);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; };
+                reader.readAsDataURL(file);
+            } else preview.style.display = 'none';
+        }
+
+        function showAddPlantForm() {
+            document.getElementById('addPlantSection').style.display = 'block';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        function hideAddPlantForm() {
+            document.getElementById('addPlantSection').style.display = 'none';
+            document.getElementById('imagePreview').style.display = 'none';
+        }
+
+        function viewPlant(id, nome, tipo, descricao, dataPlantio, observacoes, imagem) {
+            currentPlantId = id;
+            currentPlantData = { id, nome, tipo, descricao, dataPlantio, observacoes, imagem };
+            const plantDetails = document.getElementById('plantDetails');
+            let imagemHtml = imagem ? `<img src="/static/uploads/${imagem}" alt="${nome}" class="modal-plant-image">` : '';
+            plantDetails.innerHTML = `
+                <div class="plant-info">
+                    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h3>${nome}</h3>
+                            <div style="margin-bottom: 1.5rem;"><span class="plant-type">${tipo}</span></div>
+                            <div style="text-align: left;">
+                                ${descricao ? `<p><strong>Descrição:</strong> ${descricao}</p>` : ''}
+                                ${dataPlantio ? `<p><strong>Data do Plantio:</strong> ${dataPlantio}</p>` : ''}
+                                ${observacoes ? `<p><strong>Observações:</strong> ${observacoes}</p>` : ''}
+                                ${!descricao && !dataPlantio && !observacoes ? '<p style="color: #666; font-style: italic;">Nenhuma informação adicional disponível.</p>' : ''}
+                            </div>
+                        </div>
+                        ${imagemHtml ? `<div style="flex-shrink: 0;">${imagemHtml}</div>` : ''}
+                    </div>
+                </div>
+            `;
+            document.getElementById('viewModal').style.display = 'block';
+        }
+
+        function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; }
+        function editPlantFromView() { closeViewModal(); editPlant(currentPlantData.id, currentPlantData.nome, currentPlantData.tipo, currentPlantData.descricao, currentPlantData.dataPlantio, currentPlantData.observacoes, currentPlantData.imagem); }
+        function deletePlantFromView() {
+            if (confirm('Tem certeza que deseja excluir esta planta?')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/excluir_planta/${currentPlantId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function editPlant(id, nome, tipo, descricao, dataPlantio, observacoes, imagem) {
+            document.getElementById('edit_nome').value = nome;
+            document.getElementById('edit_tipo').value = tipo;
+            document.getElementById('edit_descricao').value = descricao;
+            document.getElementById('edit_data_plantio').value = dataPlantio;
+            document.getElementById('edit_observacoes').value = observacoes;
+            document.getElementById('editForm').action = '/editar_planta/' + id;
+            const currentImageInfo = document.getElementById('currentImageInfo');
+            currentImageInfo.innerHTML = imagem ? `<p>Imagem atual: ${imagem}</p><p><small>Selecione uma nova imagem para substituir a atual</small></p>` : '<p><small>Nenhuma imagem atual</small></p>';
+            document.getElementById('editImagePreview').style.display = 'none';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; document.getElementById('editImagePreview').style.display = 'none'; }
+
+        window.onclick = function(event) {
+            const viewModal = document.getElementById('viewModal');
+            const editModal = document.getElementById('editModal');
+            if (event.target === viewModal) closeViewModal();
+            if (event.target === editModal) closeEditModal();
+        };
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') { closeViewModal(); closeEditModal(); }
+        });
+    </script>
+</body>
+</html>

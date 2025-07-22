@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Projetos - Semente Diária</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #dac8b3;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            display: flex;
+            background-color: green;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo{
+            position: relative;
+            left: 100px;
+        }
+
+        .header-left h1{
+            position: relative;
+            left: 100px;
+        }
+
+        header img {
+            border-radius: 50%;
+        }
+
+        header .header-left h1 {
+            color: aliceblue;
+            margin: 0 20px 0 0;
+        }
+
+        header nav {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 100px;
+        }
+
+        header nav h1 {
+            color: aliceblue;
+            margin: 0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 12px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        header nav h1:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header .header-right a {
+            color: aliceblue;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        header .header-right a:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
+        }
+
+        header hr {
+            height: 150px;
+            width: 2px;
+            background-color: white;
+            border: none;
+            margin: 0 20px;
+        }
+
+        main {
+            padding: 2rem;
+            margin-bottom: 120px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            color: #2d5016;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .projetos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .projeto-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .projeto-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .projeto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .projeto-titulo {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d5016;
+            margin: 0;
+        }
+
+        .projeto-status {
+            background: #e8f5e8;
+            color: #2d5016;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .projeto-status.em-andamento {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .projeto-status.concluido {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .projeto-status.aguardando {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .projeto-descricao {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .projeto-datas {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-label {
+            color: #999;
+            font-size: 0.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .data-valor {
+            color: #2d5016;
+            font-weight: bold;
+        }
+
+        .projeto-progresso {
+            margin-top: 1rem;
+        }
+
+        .progresso-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .progresso-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progresso-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .nenhum-projeto {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .nenhum-projeto h2 {
+            color: #999;
+            margin-bottom: 1rem;
+        }
+
+        .btn-calendario {
+            display: inline-block;
+            background: green;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-calendario:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        footer {
+            background-color: green;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+        }
+
+        footer p {
+            color: aliceblue;
+            margin: 5px 0;
+        }
+
+        .seta {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 3;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .seta:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+
+        .seta img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img class = "logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
+            <h1>Semente Diária</h1>
+            <button class="seta" onclick="window.location.href='/'">
+            <img src="/static/download-removebg-preview.png" alt="Voltar">
+        </button>
+        </div>
+        
+        <div class="header-right">
+                <a href="/logout">Logout</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="page-header">
+            <h1>Projetos em Desenvolvimento</h1>
+            <p>Acompanhe o progresso dos nossos projetos e iniciativas</p>
+        </div>
+
+        <div class="projetos-container">
+            {% if projetos %}
+                {% for projeto in projetos %}
+                <div class="projeto-card" style="border-left-color: {{ projeto.cor or '#28a745' }};">
+                    <div class="projeto-header">
+                        <h2 class="projeto-titulo">{{ projeto.titulo }}</h2>
+                        <span class="projeto-status {{ projeto.status }}">
+                            {{ projeto.status_texto }}
+                        </span>
+                    </div>
+                    
+                    {% if projeto.descricao %}
+                    <div class="projeto-descricao">
+                        {{ projeto.descricao }}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="projeto-datas">
+                        <div class="data-item">
+                            <span class="data-label">Início</span>
+                            <span class="data-valor">{{ projeto.data_inicio }}</span>
+                        </div>
+                        {% if projeto.data_fim %}
+                        <div class="data-item">
+                            <span class="data-label">Término</span>
+                            <span class="data-valor">{{ projeto.data_fim }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="projeto-progresso">
+                        <div class="progresso-label">
+                            <span>Progresso</span>
+                            <span>{{ projeto.progresso }}%</span>
+                        </div>
+                        <div class="progresso-bar">
+                            <div class="progresso-fill" style="width: {{ projeto.progresso }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="nenhum-projeto">
+                    <h2>Nenhum projeto encontrado</h2>
+                    <p>Ainda não há projetos cadastrados no sistema.</p>
+                    {% if is_admin %}
+                        <a href="/calendario" class="btn-calendario">Gerenciar Projetos no Calendário</a>
+                    {% else %}
+                        <a href="/calendario" class="btn-calendario">Ver Calendário</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Semente diária. Todos os direitos reservados.</p>
+        <p>Contato: contato@metfrix.com | Redes sociais: @MetFrix</p>
+    </footer>
+    <script>
+        let currentDate = new Date();
+        let projects = {{ projetos | tojson | safe }};
+        let isAdmin = {{ 'true' if is_admin() else 'false' }};
+
+        function formatDateToYMD(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthYear = document.getElementById('monthYear');
+            calendar.querySelectorAll('.calendar-day').forEach(el => el.remove());
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            monthYear.textContent = new Date(year, month).toLocaleDateString('pt-BR', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            const firstDay = new Date(year, month, 1);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+            const today = new Date();
+
+            for (let i = 0; i < 42; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const ymd = formatDateToYMD(date);
+
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+
+                if (date.getMonth() !== month) {
+                    dayElement.classList.add('other-month');
+                }
+
+                if (date.toDateString() === today.toDateString()) {
+                    dayElement.classList.add('today');
+                }
+
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = date.getDate();
+                dayElement.appendChild(dayNumber);
+
+                const dayProjects = projects.filter(p => p.data_inicio === ymd);
+
+                if (dayProjects.length > 0) {
+                    dayElement.addEventListener('click', () => abrirModalProjetos(ymd));
+
+                    const projectDots = document.createElement('div');
+                    projectDots.classList.add('project-dots');
+
+                    dayProjects.forEach(p => {
+                        const dot = document.createElement('span');
+                        dot.className = 'project-dot';
+                        dot.style.backgroundColor = p.cor || '#28a745';
+                        dot.title = p.titulo;
+                        projectDots.appendChild(dot);
+                    });
+
+                    dayElement.appendChild(projectDots);
+                }
+
+                calendar.appendChild(dayElement);
+            }
+        }
+
+        function abrirModalProjetos(dataYMD) {
+            const projetosDia = projects.filter(p => p.data_inicio === dataYMD);
+            const modalBody = document.getElementById("modal-body");
+
+            if (!projetosDia.length) return;
+
+            const dataFormatada = new Date(dataYMD).toLocaleDateString('pt-BR');
+            let html = `<h3>Projetos de ${dataFormatada}</h3>`;
+
+            projetosDia.forEach(p => {
+                html += `
+                    <div class="project-card" style="border-left-color: ${p.cor || '#28a745'}">
+                        <h4>${p.titulo}</h4>
+                        <p>${p.descricao || ''}</p>
+                        <p class="project-date"><strong>Início:</strong> ${p.data_inicio}
+                        ${p.data_fim ? ' | <strong>Fim:</strong> ' + p.data_fim : ''}</p>
+                        ${isAdmin ? `
+                            <div class="project-actions">
+                                <button class="btn-edit" onclick="editarProjeto(${p.id})">Editar</button>
+                                <button class="btn-delete" onclick="confirmarDelecao(${p.id}, '${p.titulo}')">Deletar</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            modalBody.innerHTML = html;
+            document.getElementById("modal").style.display = "block";
+        }
+
+        function editarProjeto(projectId) {
+            const projeto = projects.find(p => p.id == projectId);
+            if (!projeto) return;
+
+            document.getElementById('project-id').value = projeto.id;
+            document.getElementById('titulo').value = projeto.titulo;
+            document.getElementById('descricao').value = projeto.descricao || '';
+            document.getElementById('data_inicio').value = projeto.data_inicio;
+            document.getElementById('data_fim').value = projeto.data_fim || '';
+            
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+                if (option.dataset.color === projeto.cor) {
+                    option.classList.add('selected');
+                }
+            });
+            document.getElementById('cor').value = projeto.cor || '#28a745';
+
+            document.getElementById('form-title').textContent = 'Editar Projeto';
+            document.getElementById('project-form').action = '/editar_projeto';
+            document.getElementById('submit-btn').textContent = 'Salvar Alterações';
+            document.getElementById('cancel-btn').style.display = 'inline-block';
+
+            fecharModal();
+            document.querySelector('.project-form').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('project-form').reset();
+            document.getElementById('project-id').value = '';
+            
+            document.getElementById('form-title').textContent = 'Adicionar Novo Projeto';
+            document.getElementById('project-form').action = '/adicionar_projeto';
+            document.getElementById('submit-btn').textContent = 'Adicionar Projeto';
+            document.getElementById('cancel-btn').style.display = 'none';
+            
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector('.color-option').classList.add('selected');
+            document.getElementById('cor').value = '#28a745';
+        }
+
+        function confirmarDelecao(projectId, titulo) {
+            if (confirm(`Tem certeza que deseja deletar o projeto "${titulo}"?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/excluir_projeto';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'project_id';
+                input.value = projectId;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function fecharModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target === modal) fecharModal();
+        }
+
+        if (isAdmin) {
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('cor').value = this.dataset.color;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
