@@ -12,21 +12,23 @@ import uuid
 app = Flask(__name__)
 app.secret_key = "@Darel230109"
 
-# Configurações
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ========== UTILITÁRIOS ==========
+# ========== FUNÇÕES UTILITÁRIAS ==========
+
 def validar_email(email):
+    """Valida formato de email usando regex"""
     return re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email) is not None
 
 def allowed_file(filename):
+    """Verifica se o arquivo possui extensão permitida"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def processar_imagem(arquivo):
-    """Salva e redimensiona imagem"""
+    """Salva e redimensiona imagem otimizando para web"""
     if not arquivo or not allowed_file(arquivo.filename):
         return None
     
@@ -50,6 +52,7 @@ def processar_imagem(arquivo):
         return None
 
 def remover_imagem(nome_arquivo):
+    """Remove arquivo de imagem do sistema"""
     if nome_arquivo:
         caminho = os.path.join(UPLOAD_FOLDER, nome_arquivo)
         try:
@@ -59,22 +62,35 @@ def remover_imagem(nome_arquivo):
             print(f"Erro ao remover imagem: {e}")
 
 def get_db():
+    """Retorna conexão com banco SQLite com row_factory configurado"""
     conn = sqlite3.connect('app.db')
     conn.row_factory = sqlite3.Row
     return conn
 
 def get_user_id(nome_usuario):
-    """Retorna o ID do usuário"""
+    """Retorna o ID do usuário pelo nome"""
     with get_db() as conn:
         user = conn.execute('SELECT id FROM usuarios WHERE nome = ?', (nome_usuario,)).fetchone()
         return user['id'] if user else None
 
 def is_admin():
-    """Função para verificar se o usuário atual é admin"""
+    """Verifica se o usuário atual é administrador"""
     return session.get('usuario') == 'admin'
 
+def get_admin_projects():
+    """Retorna projetos do admin para exibição no calendário"""
+    admin_id = get_user_id('admin')
+    if not admin_id:
+        return []
+    
+    with get_db() as conn:
+        return conn.execute('SELECT * FROM eventos_calendario WHERE usuario_id = ? ORDER BY data_inicio ASC', 
+                           (admin_id,)).fetchall()
+
 # ========== DECORADORES ==========
+
 def login_required(f):
+    """Decorador que exige login para acessar rota"""
     @wraps(f)
     def decorated(*args, **kwargs):
         if 'usuario' not in session:
@@ -83,6 +99,7 @@ def login_required(f):
     return decorated
 
 def admin_required(f):
+    """Decorador que exige privilégios de admin"""
     @wraps(f)
     def decorated(*args, **kwargs):
         if not is_admin():
@@ -90,12 +107,14 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
-# ========== INICIALIZAÇÃO DB ==========
+# ========== INICIALIZAÇÃO DO BANCO DE DADOS ==========
+
 def init_db():
+    """Inicializa banco de dados com tabelas e dados padrão"""
     with sqlite3.connect('app.db') as conn:
         cursor = conn.cursor()
         
-        # Tabelas
+        # Criação das tabelas
         cursor.execute('''CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT UNIQUE NOT NULL,
@@ -131,20 +150,49 @@ def init_db():
             cor TEXT DEFAULT '#28a745',
             usuario_id INTEGER NOT NULL,
             FOREIGN KEY (usuario_id) REFERENCES usuarios (id))''')
+
+        cursor.execute('''CREATE TABLE IF NOT EXISTS produtos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            preco REAL NOT NULL,
+            categoria TEXT NOT NULL,
+            descricao TEXT,
+            imagem TEXT,
+            estoque INTEGER DEFAULT 0,
+            ativo BOOLEAN DEFAULT 1,
+            data_criacao TEXT)''')
         
-        # Verificar e adicionar colunas se necessário
+        cursor.execute('''CREATE TABLE IF NOT EXISTS pedidos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER NOT NULL,
+            total REAL NOT NULL,
+            status TEXT DEFAULT 'pendente',
+            data_pedido TEXT,
+            FOREIGN KEY (usuario_id) REFERENCES usuarios (id))''')
+        
+        cursor.execute('''CREATE TABLE IF NOT EXISTS itens_pedido (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pedido_id INTEGER NOT NULL,
+            produto_id INTEGER NOT NULL,
+            quantidade INTEGER NOT NULL,
+            preco_unitario REAL NOT NULL,
+            FOREIGN KEY (pedido_id) REFERENCES pedidos (id),
+            FOREIGN KEY (produto_id) REFERENCES produtos (id))''')
+        
+        # Função para adicionar colunas se não existirem
         def add_column_if_not_exists(table, column, definition):
             cursor.execute(f"PRAGMA table_info({table})")
             columns = [col[1] for col in cursor.fetchall()]
             if column not in columns:
                 cursor.execute(f'ALTER TABLE {table} ADD COLUMN {definition}')
         
+        # Adicionar colunas que podem estar faltando
         add_column_if_not_exists('usuarios', 'senha_original', 'senha_original TEXT')
         add_column_if_not_exists('usuarios', 'email', 'email TEXT')
         add_column_if_not_exists('noticias', 'data_publicacao', 'data_publicacao TEXT')
         add_column_if_not_exists('plantas', 'imagem', 'imagem TEXT')
         
-        # Usuários padrão
+        # Inserir usuários padrão se não existirem
         cursor.execute('SELECT COUNT(*) FROM usuarios')
         if cursor.fetchone()[0] == 0:
             users = [
@@ -154,32 +202,62 @@ def init_db():
             for nome, email, senha in users:
                 cursor.execute('INSERT INTO usuarios (nome, email, senha, senha_original) VALUES (?, ?, ?, ?)',
                              (nome, email, generate_password_hash(senha), senha))
+        
+        # Inserir produtos padrão se não existirem
+        cursor.execute('SELECT COUNT(*) FROM produtos')
+        if cursor.fetchone()[0] == 0:
+            produtos_padrao = [
+                ('Sementes de Tomate', 15.99, 'sementes', 'Sementes orgânicas de tomate cereja', '🍅', 50),
+                ('Pá de Jardinagem', 35.50, 'ferramentas', 'Pá resistente para jardinagem', '🪚', 25),
+                ('Fertilizante Orgânico', 28.00, 'fertilizantes', 'Fertilizante 100% orgânico 2kg', '🌱', 30),
+                ('Vaso de Cerâmica', 45.90, 'vasos', 'Vaso decorativo de cerâmica 30cm', '🏺', 15),
+                ('Sementes de Alface', 12.50, 'sementes', 'Sementes de alface crespa', '🥬', 40),
+                ('Regador 5L', 89.90, 'ferramentas', 'Regador plástico resistente', '💧', 20),
+                ('Sementes de Cenoura', 18.75, 'sementes', 'Sementes híbridas de cenoura', '🥕', 35),
+                ('Tesoura de Poda', 67.50, 'ferramentas', 'Tesoura profissional para poda', '✂️', 12),
+                ('Adubo Líquido', 24.90, 'fertilizantes', 'Adubo líquido concentrado 500ml', '🧪', 22),
+                ('Vaso Plástico Grande', 29.99, 'vasos', 'Vaso plástico resistente 40cm', '🪴', 18)
+            ]
+            
+            for nome, preco, categoria, descricao, imagem, estoque in produtos_padrao:
+                cursor.execute('''INSERT INTO produtos (nome, preco, categoria, descricao, imagem, estoque, data_criacao)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?)''',
+                              (nome, preco, categoria, descricao, imagem, estoque,
+                               datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
 # ========== ROTAS PRINCIPAIS ==========
+
 @app.route('/')
 def home():
+    """Rota inicial - redireciona conforme estado de login"""
     return redirect('/index' if 'usuario' in session else '/login')
 
 @app.route('/index')
 @login_required
 def index():
+    """Página inicial do sistema"""
     return render_template('index.html', usuario=session['usuario'])
 
 @app.route('/redes')
 def redes():
+    """Página de redes sociais"""
     return render_template('redes.html')
 
 @app.route('/ajuda')
 def ajuda():
+    """Página de ajuda"""
     return render_template('ajuda.html')
 
 @app.route('/servicos')
 def servicos():
-    return render_template('servicos.html')
+    """Página de serviços - redireciona para loja"""
+    return render_template('loja.html')
 
 # ========== AUTENTICAÇÃO ==========
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Sistema de login com email ou nome de usuário"""
     if request.method == 'POST':
         login_input = request.form['login_input'].strip()
         senha = request.form['senha']
@@ -204,6 +282,7 @@ def login():
 
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
+    """Sistema de cadastro de novos usuários"""
     if request.method == 'POST':
         nome, email, senha = request.form['nome'].strip(), request.form['email'].strip(), request.form['senha']
         
@@ -232,13 +311,16 @@ def cadastro():
 
 @app.route('/logout')
 def logout():
+    """Sistema de logout"""
     session.pop('usuario', None)
     return redirect('/login')
 
-# ========== PLANTAS ==========
+# ========== GERENCIAMENTO DE PLANTAS ==========
+
 @app.route('/plantas')
 @login_required
 def plantas():
+    """Página de listagem de plantas do usuário"""
     usuario_id = get_user_id(session['usuario'])
     if not usuario_id:
         flash('Usuário não encontrado!', 'error')
@@ -253,6 +335,7 @@ def plantas():
 @app.route('/adicionar_planta', methods=['POST'])
 @login_required
 def adicionar_planta():
+    """Adiciona nova planta ao sistema"""
     nome, tipo = request.form.get('nome', '').strip(), request.form.get('tipo', '').strip()
     
     if not nome or not tipo:
@@ -264,7 +347,7 @@ def adicionar_planta():
         flash('Usuário não encontrado!', 'error')
         return redirect('/plantas')
     
-    # Verificar tamanho do arquivo
+    # Processamento de imagem
     arquivo = request.files.get('imagem')
     if arquivo and arquivo.filename:
         arquivo.seek(0, os.SEEK_END)
@@ -288,6 +371,7 @@ def adicionar_planta():
 @app.route('/editar_planta/<int:planta_id>', methods=['POST'])
 @login_required
 def editar_planta(planta_id):
+    """Edita informações de uma planta existente"""
     usuario_id = get_user_id(session['usuario'])
     nome, tipo = request.form.get('nome', '').strip(), request.form.get('tipo', '').strip()
     
@@ -330,6 +414,7 @@ def editar_planta(planta_id):
 @app.route('/excluir_planta/<int:planta_id>', methods=['POST'])
 @login_required
 def excluir_planta(planta_id):
+    """Exclui uma planta do sistema"""
     usuario_id = get_user_id(session['usuario'])
     
     with get_db() as conn:
@@ -348,10 +433,12 @@ def excluir_planta(planta_id):
     flash('Planta excluída!', 'success')
     return redirect('/plantas')
 
-# ========== NOTÍCIAS (CAMPUS) ==========
+# ========== SISTEMA DE NOTÍCIAS (CAMPUS) ==========
+
 @app.route('/campus', methods=['GET', 'POST'])
 @login_required
 def campus():
+    """Sistema de gerenciamento de notícias do campus"""
     if request.method == 'POST' and is_admin():
         titulo, conteudo = request.form['titulo'].strip(), request.form['conteudo'].strip()
         id_noticia = request.form.get('id_noticia')
@@ -379,6 +466,7 @@ def campus():
 @login_required
 @admin_required
 def excluir_noticia(id):
+    """Exclui uma notícia do sistema"""
     with get_db() as conn:
         if conn.execute('SELECT 1 FROM noticias WHERE id = ?', (id,)).fetchone():
             conn.execute('DELETE FROM noticias WHERE id = ?', (id,))
@@ -388,10 +476,12 @@ def excluir_noticia(id):
     
     return redirect('/campus')
 
-# ========== USUÁRIOS ==========
+# ========== GERENCIAMENTO DE USUÁRIOS ==========
+
 @app.route('/usuarios')
 @login_required
 def listar_usuarios():
+    """Lista todos os usuários do sistema"""
     with get_db() as conn:
         usuarios = conn.execute('SELECT nome, email, senha, senha_original FROM usuarios ORDER BY nome').fetchall()
     
@@ -408,6 +498,7 @@ def listar_usuarios():
 @login_required
 @admin_required
 def excluir_usuario(nome_usuario):
+    """Exclui um usuário e todos os seus dados"""
     if session['usuario'] == nome_usuario:
         flash('Não pode excluir seu próprio usuário!', 'error')
         return redirect('/usuarios')
@@ -418,37 +509,32 @@ def excluir_usuario(nome_usuario):
         return redirect('/usuarios')
     
     with get_db() as conn:
-        # Remover imagens das plantas
+        # Remove imagens das plantas do usuário
         plantas = conn.execute('SELECT imagem FROM plantas WHERE usuario_id = ?', (usuario_id,)).fetchall()
         for planta in plantas:
             if planta['imagem']:
                 remover_imagem(planta['imagem'])
         
+        # Remove dados do usuário
         conn.execute('DELETE FROM plantas WHERE usuario_id = ?', (usuario_id,))
         conn.execute('DELETE FROM usuarios WHERE nome = ?', (nome_usuario,))
     
     flash(f'Usuário "{nome_usuario}" excluído!', 'success')
     return redirect('/usuarios')
 
-# ========== PROJETOS/CALENDÁRIO ==========
-def get_admin_projects():
-    admin_id = get_user_id('admin')
-    if not admin_id:
-        return []
-    
-    with get_db() as conn:
-        return conn.execute('SELECT * FROM eventos_calendario WHERE usuario_id = ? ORDER BY data_inicio ASC', 
-                           (admin_id,)).fetchall()
+# ========== SISTEMA DE PROJETOS/CALENDÁRIO ==========
 
 @app.route('/calendario')
 @login_required
 def calendario():
+    """Página do calendário de projetos"""
     projetos = [dict(p) for p in get_admin_projects()]
     return render_template('calendario.html.j2', projetos=projetos)
 
 @app.route('/projetos')
 @login_required
 def projetos():
+    """Página de visualização de projetos com status"""
     projetos_raw = get_admin_projects()
     projetos = []
     data_atual = datetime.now()
@@ -459,7 +545,6 @@ def projetos():
             data_inicio = datetime.strptime(projeto['data_inicio'], '%Y-%m-%d')
             data_fim = datetime.strptime(projeto['data_fim'], '%Y-%m-%d') if projeto['data_fim'] else None
             
-            # Determinar status baseado nas datas
             if data_fim and data_atual > data_fim:
                 projeto.update({'status': 'concluido', 'status_texto': 'Concluído'})
             elif data_atual >= data_inicio:
@@ -477,6 +562,7 @@ def projetos():
 @login_required
 @admin_required
 def adicionar_projeto():
+    """Adiciona novo projeto ao calendário"""
     titulo, data_inicio = request.form.get('titulo', '').strip(), request.form.get('data_inicio', '').strip()
     
     if not titulo or not data_inicio:
@@ -497,6 +583,7 @@ def adicionar_projeto():
 @login_required
 @admin_required
 def editar_projeto():
+    """Edita projeto existente"""
     try:
         projeto_id = int(request.form.get('project_id'))
     except (ValueError, TypeError):
@@ -527,6 +614,7 @@ def editar_projeto():
 @login_required
 @admin_required
 def excluir_projeto():
+    """Exclui projeto do calendário"""
     try:
         projeto_id = int(request.form.get('project_id'))
     except (ValueError, TypeError):
@@ -545,10 +633,12 @@ def excluir_projeto():
     return redirect('/projetos')
 
 # ========== CONFIGURAÇÕES ==========
+
 @app.route('/configurar_tamanho_upload', methods=['POST'])
 @login_required
 @admin_required
 def configurar_tamanho_upload():
+    """Configura tamanho máximo de upload de arquivos"""
     global MAX_FILE_SIZE
     try:
         novo_tamanho = int(request.form.get('tamanho_mb', 5))
@@ -563,14 +653,17 @@ def configurar_tamanho_upload():
     return redirect('/usuarios')
 
 # ========== CONTEXTO GLOBAL ==========
+
 @app.context_processor
 def inject_user():
+    """Injeta variáveis globais nos templates"""
     return dict(
         session=session, 
         is_admin=is_admin
     )
 
 # ========== INICIALIZAÇÃO ==========
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
