@@ -247,13 +247,11 @@
             const toggleText = document.getElementById('toggle-text');
 
             if (senhasVisiveis) {
-                // Esconder senhas
                 senhasHidden.forEach(senha => senha.style.display = 'inline');
                 senhasReal.forEach(senha => senha.style.display = 'none');
                 toggleText.textContent = 'Mostrar Senhas';
                 senhasVisiveis = false;
             } else {
-                // Mostrar senhas
                 senhasHidden.forEach(senha => senha.style.display = 'none');
                 senhasReal.forEach(senha => senha.style.display = 'inline');
                 toggleText.textContent = 'Ocultar Senhas';
@@ -261,7 +259,6 @@
             }
         }
 
-        // Adicionar efeito de hover nas linhas da tabela
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('tbody tr').forEach(row => {
                 row.addEventListener('mouseenter', function() {
@@ -274,7 +271,6 @@
                 });
             });
 
-            // Auto-hide flash messages after 5 seconds
             const flashMessages = document.querySelector('.flash-messages');
             if (flashMessages) {
                 setTimeout(function() {
