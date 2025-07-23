@@ -123,7 +123,6 @@
             text-align: center;
         }
 
-        /* Estilo para mensagens de erro específicas */
         .erro-login {
             background-color: #dc3545;
             color: white;
@@ -157,7 +156,6 @@
         
         <h1>LOGIN</h1>
         
-        <!-- Mensagens de erro específicas -->
         {% if erro %}
             <div class="erro">{{ erro }}</div>
         {% endif %}
@@ -187,13 +185,10 @@
     </div>
 
     <script>
-        // Script para simular validação de login (para demonstração)
         document.querySelector('form').addEventListener('submit', function(e) {
-            // Esta é apenas uma demonstração - em produção, a validação deve ser feita no servidor
             const loginInput = document.querySelector('input[name="login_input"]').value;
             const senha = document.querySelector('input[name="senha"]').value;
             
-            // Exemplo de validação básica no frontend (apenas para demonstração)
             if (loginInput.length < 3) {
                 e.preventDefault();
                 alert('Usuário ou email deve ter pelo menos 3 caracteres');
