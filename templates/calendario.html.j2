@@ -14,38 +14,128 @@
             font-family: Arial, sans-serif; 
         }
         
-        header { 
-            display: flex; 
-            background: green; 
-            padding: 1rem; 
-            align-items: center; 
-            justify-content: space-between; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+        header {
+            display: flex;
+            background-color: green;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        
-        .header-left { display: flex; align-items: center; }
-        .header-right { display: flex; gap: 20px; }
-        
-        header img { 
-            margin-right: 20px; 
-            border-radius: 50%; 
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
         }
-        
-        header h1 { 
-            color: aliceblue; 
-            margin: 0; 
+
+        .logo{
+            position: relative;
+            left: 100px;
         }
-        
-        a { 
-            text-decoration: none; 
-            color: inherit; 
-            padding: 8px 16px; 
-            border-radius: 20px; 
-            transition: all 0.3s ease; 
+
+        .header-left {
+            display: flex;
+            align-items: center;
         }
-        
-        a:hover { 
-            background: rgba(255,255,255,0.1); 
+
+        .header-left h1{
+            position: relative;
+            left: 125px;
+        }
+
+        header img {
+            border-radius: 50%;
+        }
+
+        header .header-left h1 {
+            color: aliceblue;
+            margin: 0 20px 0 0;
+        }
+
+        header nav {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 100px;
+        }
+
+        header nav h1 {
+            color: aliceblue;
+            margin: 0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 12px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        header nav h1:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header .header-right a {
+            color: aliceblue;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        header .header-right a:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
+        }
+
+        header hr {
+            height: 150px;
+            width: 2px;
+            background-color: white;
+            border: none;
+            margin: 0 20px;
+        }
+
+        .seta {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 3;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .seta:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+
+        .seta img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
         
         main { 
@@ -248,8 +338,6 @@
             color: green; 
         }
         
-
-
         .close-projects {
             background: #6c757d;
             color: white;
@@ -288,12 +376,14 @@
 <body>
     <header>
         <div class="header-left">
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="50" height="50">
+            <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
             <h1>Semente Diária</h1>
+            <button class="seta" onclick="window.location.href='/'">
+                <img src="/static/download-removebg-preview.png" alt="Voltar">
+            </button>
         </div>
         <div class="header-right">
-            <a href="/index"><h1>Início</h1></a>
-            <a href="/logout"><h1>Sair</h1></a>
+            <a href="/logout">Logout</a>
         </div>
     </header>
 
@@ -328,7 +418,6 @@
                 <div class="calendar-day-header">Sáb</div>
             </div>
 
-            <!-- Seção de projetos que aparecerá embaixo do calendário -->
             <div id="projects-section" class="projects-section" style="display: none;">
                 <button class="close-projects" onclick="fecharSecaoProjetos()">✕ Fechar</button>
                 <div id="projects-content"></div>
@@ -396,7 +485,6 @@
 
                 const dayProjects = projects.filter(p => p.data_inicio === ymd);
 
-                // Adicionar evento de clique para todos os dias
                 dayElement.addEventListener('click', () => selecionarDia(ymd, dayElement));
 
                 if (dayProjects.length > 0) {
@@ -419,12 +507,10 @@
         }
 
         function selecionarDia(dataYMD, dayElement) {
-            // Remove seleção anterior
             document.querySelectorAll('.calendar-day').forEach(day => {
                 day.classList.remove('selected');
             });
 
-            // Adiciona seleção ao dia clicado
             dayElement.classList.add('selected');
             selectedDate = dataYMD;
 
@@ -459,13 +545,11 @@
 
             projectsContent.innerHTML = html;
             
-            // Mostrar a seção com animação
             projectsSection.style.display = 'block';
             setTimeout(() => {
                 projectsSection.classList.add('show');
             }, 10);
 
-            // Scroll suave até a seção
             projectsSection.scrollIntoView({ 
                 behavior: 'smooth',
                 block: 'nearest'
@@ -479,14 +563,11 @@
                 projectsSection.style.display = 'none';
             }, 300);
 
-            // Remove seleção do dia
             document.querySelectorAll('.calendar-day').forEach(day => {
                 day.classList.remove('selected');
             });
             selectedDate = null;
         }
-
-
 
         renderCalendar();
     </script>
