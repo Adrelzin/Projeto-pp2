@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Loja - Semente Diária</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #dac8b3;
+            font-family: Arial, sans-serif;
+            padding-bottom: 80px;
+        }
+
+        header {
+            display: flex;
+            background-color: green;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        header .header-left h1 {
+            color: aliceblue;
+            margin: 0;
+        }
+
+        header nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        header nav a {
+            color: aliceblue;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        header nav a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .carrinho-icon {
+            color: aliceblue;
+            font-size: 1.2em;
+            position: relative;
+        }
+
+        .carrinho-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .loja-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filtros select, .filtros input {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .produto-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .produto-imagem {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .produto-nome {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .produto-preco {
+            font-size: 1.3em;
+            color: green;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .produto-descricao {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .btn-primary {
+            background: green;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #006600;
+        }
+
+        .btn-secondary {
+            background: #666;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .carrinho-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .carrinho-sidebar.open {
+            right: 0;
+        }
+
+        .carrinho-header {
+            background: green;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .carrinho-conteudo {
+            padding: 20px;
+        }
+
+        .carrinho-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .carrinho-total {
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: green;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        footer {
+            background-color: green;
+            text-align: center;
+            padding: 20px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+        }
+
+        footer p {
+            color: white;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>🌱 Semente Diária - Loja</h1>
+        </div>
+        
+        <nav>
+            <a href="/index">Início</a>
+            <a href="/plantas">Plantas</a>
+            <a href="/campus">Campus</a>
+            <a href="/projetos">Projetos</a>
+        </nav>
+
+        <div class="header-right">
+            <div class="carrinho-icon" onclick="toggleCarrinho()">
+                🛒 <span class="carrinho-count" id="carrinho-count">0</span>
+            </div>
+            <a href="/logout">Sair</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="loja-header">
+            <h1>🛍️ Nossa Loja</h1>
+            <p>Produtos para jardinagem e plantas</p>
+        </div>
+
+        <div class="filtros">
+            <select id="categoria-filter">
+                <option value="">Todas as Categorias</option>
+                <option value="sementes">Sementes</option>
+                <option value="ferramentas">Ferramentas</option>
+                <option value="fertilizantes">Fertilizantes</option>
+                <option value="vasos">Vasos</option>
+            </select>
+            
+            <select id="preco-filter">
+                <option value="">Todos os Preços</option>
+                <option value="0-25">Até R$ 25</option>
+                <option value="25-50">R$ 25 - R$ 50</option>
+                <option value="50-100">R$ 50 - R$ 100</option>
+                <option value="100+">Acima de R$ 100</option>
+            </select>
+            
+            <input type="text" id="search-input" placeholder="Buscar produtos...">
+        </div>
+
+        <div class="produtos-grid" id="produtos-grid">
+            <!-- Produtos serão carregados aqui via JavaScript -->
+        </div>
+    </main>
+
+    <!-- Carrinho Sidebar -->
+    <div class="carrinho-sidebar" id="carrinho-sidebar">
+        <div class="carrinho-header">
+            <h3>Meu Carrinho</h3>
+            <span onclick="toggleCarrinho()" style="cursor: pointer; font-size: 1.5em;">×</span>
+        </div>
+        <div class="carrinho-conteudo" id="carrinho-conteudo">
+            <p>Carrinho vazio</p>
+        </div>
+        <div class="carrinho-total" id="carrinho-total">Total: R$ 0,00</div>
+        <div style="padding: 20px;">
+            <button class="btn btn-primary" style="width: 100%;" onclick="finalizarCompra()">
+                Finalizar Compra
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Produto -->
+    <div id="produto-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal()">&times;</span>
+            <div id="produto-detalhes"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Semente Diária - Todos os direitos reservados</p>
+    </footer>
+
+    <script>
+        // Dados dos produtos (simulando uma API)
+        const produtos = [
+            {
+                id: 1,
+                nome: "Sementes de Tomate",
+                preco: 15.99,
+                categoria: "sementes",
+                descricao: "Sementes orgânicas de tomate cereja",
+                imagem: "🍅"
+            },
+            {
+                id: 2,
+                nome: "Pá de Jardinagem",
+                preco: 35.50,
+                categoria: "ferramentas",
+                descricao: "Pá resistente para jardinagem",
+                imagem: "🪚"
+            },
+            {
+                id: 3,
+                nome: "Fertilizante Orgânico",
+                preco: 28.00,
+                categoria: "fertilizantes",
+                descricao: "Fertilizante 100% orgânico 2kg",
+                imagem: "🌱"
+            },
+            {
+                id: 4,
+                nome: "Vaso de Cerâmica",
+                preco: 45.90,
+                categoria: "vasos",
+                descricao: "Vaso decorativo de cerâmica 30cm",
+                imagem: "🏺"
+            },
+            {
+                id: 5,
+                nome: "Sementes de Alface",
+                preco: 12.50,
+                categoria: "sementes",
+                descricao: "Sementes de alface crespa",
+                imagem: "🥬"
+            },
+            {
+                id: 6,
+                nome: "Regador 5L",
+                preco: 89.90,
+                categoria: "ferramentas",
+                descricao: "Regador plástico resistente",
+                imagem: "💧"
+            }
+        ];
+
+        let carrinho = [];
+
+        // Renderizar produtos
+        function renderizarProdutos(produtosList = produtos) {
+            const grid = document.getElementById('produtos-grid');
+            grid.innerHTML = '';
+
+            produtosList.forEach(produto => {
+                const card = document.createElement('div');
+                card.className = 'produto-card';
+                card.innerHTML = `
+                    <div class="produto-imagem">${produto.imagem}</div>
+                    <div class="produto-nome">${produto.nome}</div>
+                    <div class="produto-preco">R$ ${produto.preco.toFixed(2)}</div>
+                    <div class="produto-descricao">${produto.descricao}</div>
+                    <button class="btn btn-primary" onclick="adicionarAoCarrinho(${produto.id})">
+                        Adicionar ao Carrinho
+                    </button>
+                    <button class="btn btn-secondary" onclick="verDetalhes(${produto.id})">
+                        Detalhes
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Adicionar ao carrinho
+        function adicionarAoCarrinho(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            const itemExistente = carrinho.find(item => item.id === produtoId);
+
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({...produto, quantidade: 1});
+            }
+
+            atualizarCarrinho();
+        }
+
+        // Atualizar carrinho
+        function atualizarCarrinho() {
+            const count = document.getElementById('carrinho-count');
+            const conteudo = document.getElementById('carrinho-conteudo');
+            const total = document.getElementById('carrinho-total');
+
+            const totalItens = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
+            const totalPreco = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+
+            count.textContent = totalItens;
+
+            if (carrinho.length === 0) {
+                conteudo.innerHTML = '<p>Carrinho vazio</p>';
+            } else {
+                conteudo.innerHTML = carrinho.map(item => `
+                    <div class="carrinho-item">
+                        <div>
+                            <strong>${item.nome}</strong><br>
+                            R$ ${item.preco.toFixed(2)} x ${item.quantidade}
+                        </div>
+                        <button onclick="removerDoCarrinho(${item.id})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 3px;">
+                            Remover
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            total.textContent = `Total: R$ ${totalPreco.toFixed(2)}`;
+        }
+
+        // Remover do carrinho
+        function removerDoCarrinho(produtoId) {
+            carrinho = carrinho.filter(item => item.id !== produtoId);
+            atualizarCarrinho();
+        }
+
+        // Toggle carrinho
+        function toggleCarrinho() {
+            const sidebar = document.getElementById('carrinho-sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Ver detalhes
+        function verDetalhes(produtoId) {
+            const produto = produtos.find(p => p.id === produtoId);
+            const detalhes = document.getElementById('produto-detalhes');
+            
+            detalhes.innerHTML = `
+                <h2>${produto.nome}</h2>
+                <div style="font-size: 3em; text-align: center; margin: 20px 0;">${produto.imagem}</div>
+                <p><strong>Preço:</strong> R$ ${produto.preco.toFixed(2)}</p>
+                <p><strong>Categoria:</strong> ${produto.categoria}</p>
+                <p><strong>Descrição:</strong> ${produto.descricao}</p>
+                <button class="btn btn-primary" onclick="adicionarAoCarrinho(${produto.id}); fecharModal();">
+                    Adicionar ao Carrinho
+                </button>
+            `;
+
+            document.getElementById('produto-modal').style.display = 'block';
+        }
+
+        // Fechar modal
+        function fecharModal() {
+            document.getElementById('produto-modal').style.display = 'none';
+        }
+
+        // Finalizar compra
+        function finalizarCompra() {
+            if (carrinho.length === 0) {
+                alert('Carrinho vazio!');
+                return;
+            }
+
+            const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
+            alert(`Compra finalizada! Total: R$ ${total.toFixed(2)}\n\nObrigado pela preferência!`);
+            
+            carrinho = [];
+            atualizarCarrinho();
+            toggleCarrinho();
+        }
+
+        // Filtros
+        document.getElementById('categoria-filter').addEventListener('change', filtrarProdutos);
+        document.getElementById('preco-filter').addEventListener('change', filtrarProdutos);
+        document.getElementById('search-input').addEventListener('input', filtrarProdutos);
+
+        function filtrarProdutos() {
+            const categoria = document.getElementById('categoria-filter').value;
+            const preco = document.getElementById('preco-filter').value;
+            const search = document.getElementById('search-input').value.toLowerCase();
+
+            let produtosFiltrados = produtos.filter(produto => {
+                const matchCategoria = !categoria || produto.categoria === categoria;
+                const matchSearch = !search || produto.nome.toLowerCase().includes(search) || produto.descricao.toLowerCase().includes(search);
+                
+                let matchPreco = true;
+                if (preco) {
+                    const [min, max] = preco.split('-').map(p => p.replace('+', ''));
+                    if (max) {
+                        matchPreco = produto.preco >= parseFloat(min) && produto.preco <= parseFloat(max);
+                    } else {
+                        matchPreco = produto.preco >= parseFloat(min);
+                    }
+                }
+
+                return matchCategoria && matchSearch && matchPreco;
+            });
+
+            renderizarProdutos(produtosFiltrados);
+        }
+
+        // Inicializar
+        renderizarProdutos();
+        atualizarCarrinho();
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('produto-modal');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+    </script>
+</body>
+</html>
