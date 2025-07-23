@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Semente Diária - Redes Sociais</title>
+    <title> Redes Sociais - Semente Diária</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -31,16 +31,90 @@
             100% { transform: scale(1); }
         }
 
-        header {
-            background-color: green;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        header h1 {
-            color: white;
-            font-size: 2rem;
+        header {
+            display: flex;
+            background-color: green;
+            width: 100%;
+            padding: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 60px;
+        }
+
+        .header-left h1 {
+            color: aliceblue;
+            margin: 0;
+            font-size: clamp(1rem, 4vw, 1.8rem);
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-right a {
+            color: aliceblue;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .header-right a:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .seta {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .seta:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .seta img {
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
 
         .social-main {
@@ -51,25 +125,28 @@
             align-items: center;
             padding: 2rem;
             text-align: center;
+            margin-bottom: 100px;
         }
 
         .social-title {
             margin-bottom: 2rem;
-            color: #333;
-            font-size: 1.8rem;
+            color: #2c5530;
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            font-weight: bold;
         }
 
         .social-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 30px;
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
         .social-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
             padding: 1.5rem;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -78,13 +155,13 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-decoration: none !important; /* REMOVE O SUBLINHADO */
+            text-decoration: none;
+            height: 100%;
         }
 
         .social-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-            text-decoration: none !important; /* REMOVE NO HOVER TAMBÉM */
         }
 
         .social-icon {
@@ -98,7 +175,6 @@
         .social-card:nth-child(2) .social-icon { animation-delay: 0.2s; }
         .social-card:nth-child(3) .social-icon { animation-delay: 0.4s; }
         .social-card:nth-child(4) .social-icon { animation-delay: 0.6s; }
-        .social-card:nth-child(5) .social-icon { animation-delay: 0.8s; }
 
         .social-name {
             font-weight: bold;
@@ -115,47 +191,80 @@
         .social-card:hover .social-icon {
             animation: pulse 0.5s ease;
         }
-
-        .seta {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            z-index: 3;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .seta:hover {
-            background-color: rgba(255, 255, 255, 0.9);
-            transform: scale(1.1);
-        }
-
-        .seta img {
-            width: 40px;
-            height: 40px;
-            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-        }
         
         footer {
             background-color: green;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             width: 100%;
             position: fixed;
             bottom: 0;
             box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
             animation: slideIn 0.8s ease;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0.8rem;
+            }
+            
+            .header-left {
+                margin-left: 50px;
+                gap: 10px;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .seta {
+                width: 45px;
+                height: 45px;
+                left: 10px;
+            }
+            
+            .seta img {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .social-main {
+                padding: 1rem;
+                margin-bottom: 80px;
+            }
+            
+            .social-grid {
+                gap: 20px;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .social-card {
+                padding: 1rem;
+            }
+            
+            .social-icon {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .social-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .social-icon {
+                font-size: 2.5rem;
+            }
+            
+            .social-name {
+                font-size: 1rem;
+            }
+            
+            .social-username {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -164,42 +273,41 @@
         <button class="seta" onclick="window.location.href='/'">
             <img src="/static/download-removebg-preview.png" alt="Voltar">
         </button>
-        <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
-        <h1>Siga a Semente Diária</h1>
+        <div class="header-left">
+            <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h1>Semente Diária</h1>
+        </div>
+        <div class="header-right">
+            <a href="/logout">Logout</a>
+        </div>
     </header>
 
     <main class="social-main">
         <h2 class="social-title">Nossas redes sociais</h2>
         
         <div class="social-grid">
-            <a href="https://facebook.com/MetFrix" target="_blank" class="social-card">
-                <i class="fab fa-facebook-f social-icon"></i>
-                <div class="social-name">Facebook</div>
-                <div class="social-username">@MetFrix</div>
-            </a>
-            
-            <a href="https://instagram.com/MetFrix" target="_blank" class="social-card">
+            <a href="https://instagram.com/sementediaria" target="_blank" class="social-card">
                 <i class="fab fa-instagram social-icon"></i>
                 <div class="social-name">Instagram</div>
-                <div class="social-username">@MetFrix</div>
+                <div class="social-username">@sementediaria</div>
             </a>
             
-            <a href="https://twitter.com/MetFrix" target="_blank" class="social-card">
+            <a href="https://twitter.com/sementediaria" target="_blank" class="social-card">
                 <i class="fab fa-twitter social-icon"></i>
                 <div class="social-name">Twitter</div>
-                <div class="social-username">@MetFrix</div>
+                <div class="social-username">@sementediaria</div>
             </a>
             
-            <a href="https://youtube.com/MetFrix" target="_blank" class="social-card">
+            <a href="https://youtube.com/sementediaria" target="_blank" class="social-card">
                 <i class="fab fa-youtube social-icon"></i>
                 <div class="social-name">YouTube</div>
-                <div class="social-username">@MetFrix</div>
+                <div class="social-username">@sementediaria</div>
             </a>
             
-            <a href="https://tiktok.com/@MetFrix" target="_blank" class="social-card">
+            <a href="https://tiktok.com/@sementediaria" target="_blank" class="social-card">
                 <i class="fab fa-tiktok social-icon"></i>
                 <div class="social-name">TikTok</div>
-                <div class="social-username">@MetFrix</div>
+                <div class="social-username">@sementediaria</div>
             </a>
         </div>
     </main>
