@@ -2,25 +2,25 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Semente Diária</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ajuda - Semente Diária</title>
   <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
   <style>
-    /* ===== RESET E CONFIGURAÇÕES GERAIS ===== */
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
-      padding: 0;
       background-color: #dac8b3;
       font-family: Arial, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
 
-    /* ===== ANIMAÇÕES ===== */
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -31,44 +31,45 @@
       to { opacity: 1; }
     }
 
-    /* ===== HEADER ===== */
     header {
       display: flex;
       background-color: green;
       width: 100%;
-      height: 100px;
       padding: 1rem;
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
       animation: slideIn 0.6s ease-out;
+      position: relative;
+      min-height: 80px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
+      gap: 15px;
+      margin-left: 60px;
     }
 
     .header-left h1 {
-      position: relative;
-      left: 125px;
       color: aliceblue;
-      margin: 0 20px 0 0;
-    }
-
-    header img {
-      border-radius: 50%;
+      margin: 0;
+      font-size: clamp(1rem, 4vw, 1.8rem);
+      white-space: nowrap;
     }
 
     .logo {
-      position: relative;
-      left: 100px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
     }
 
     .seta {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-50%);
       background: none;
       border: none;
       cursor: pointer;
@@ -76,8 +77,8 @@
       padding: 10px;
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -87,12 +88,12 @@
 
     .seta:hover {
       background-color: rgba(255, 255, 255, 0.9);
-      transform: scale(1.1);
+      transform: translateY(-50%) scale(1.1);
     }
 
     .seta img {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
     }
 
@@ -101,8 +102,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 2rem;
-      margin-bottom: 120px; 
+      padding: 1.5rem;
+      margin-bottom: 100px; 
+      width: 100%;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .bloco {
@@ -112,38 +117,44 @@
       flex-direction: column;
       animation: slideIn 0.6s ease-out;
       background-color: rgba(255, 255, 255, 0.1);
-      padding: 2rem;
+      padding: 1.5rem;
       border-radius: 15px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       backdrop-filter: blur(10px);
+      width: 100%;
+      max-width: 800px;
     }
 
     .bloco h1 {
       color: #2c5530;
       text-align: center;
       margin-bottom: 2rem;
-      font-size: 1.8rem;
+      font-size: clamp(1.2rem, 5vw, 1.8rem);
       font-weight: bold;
+      line-height: 1.4;
     }
 
     .contact-container {
       display: flex;
       flex-direction: row;
-      gap: 2rem;
+      gap: 1.5rem;
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
+      width: 100%;
     }
 
     .contact-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1.5rem;
+      padding: 1.2rem;
       background-color: rgba(255, 255, 255, 0.2);
       border-radius: 12px;
       transition: all 0.3s ease;
-      min-width: 150px;
+      min-width: 120px;
+      flex: 1;
+      max-width: 200px;
       animation: fadeIn 0.8s ease-out;
     }
 
@@ -166,64 +177,126 @@
     .contact-button {
       background-color: transparent;
       border: none;
-      padding: 1rem;
+      padding: 0.8rem;
       border-radius: 50%;
       transition: all 0.3s ease;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 80px;
-      height: 80px;
+      width: 70px;
+      height: 70px;
       background-color: rgba(255, 255, 255, 0.1);
       margin-bottom: 1rem;
       pointer-events: none;
     }
 
-    .contact-button:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
-
     .contact-button img {
-      width: 40px;
-      height: 40px;
+      width: 35px;
+      height: 35px;
       transition: transform 0.3s ease;
-    }
-
-    .contact-button:hover img {
-      transform: scale(1.2);
     }
 
     .contact-label {
       color: #2c5530;
       font-weight: bold;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
     }
 
     footer {
       background-color: green;
       text-align: center;
-      padding: 20px;
+      padding: 15px;
       width: 100%;
       position: fixed;
       bottom: 0;
       box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
       animation: slideIn 0.8s ease;
+      z-index: 10;
     }
 
+    @media (max-width: 768px) {
+      header {
+        padding: 0.8rem;
+      }
+      
+      .header-left {
+        margin-left: 50px;
+        gap: 10px;
+      }
+      
+      .logo {
+        width: 50px;
+        height: 50px;
+      }
+      
+      .seta {
+        width: 45px;
+        height: 45px;
+        left: 10px;
+      }
+      
+      .seta img {
+        width: 25px;
+        height: 25px;
+      }
+      
+      main {
+        padding: 1rem;
+        margin-bottom: 80px;
+      }
+      
+      .bloco {
+        padding: 1.2rem;
+      }
+      
+      .contact-container {
+        gap: 1rem;
+      }
+      
+      .contact-item {
+        min-width: 100px;
+        padding: 1rem;
+      }
+      
+      .contact-button {
+        width: 60px;
+        height: 60px;
+      }
+      
+      .contact-button img {
+        width: 30px;
+        height: 30px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-left h1 {
+        white-space: normal;
+        font-size: 1rem;
+      }
+      
+      .bloco h1 {
+        margin-bottom: 1.5rem;
+      }
+      
+      .contact-item {
+        min-width: 80px;
+        padding: 0.8rem;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="header-left">
-      <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
-      <h1>Semente Diária</h1>
-    </div>
     <button class="seta" onclick="window.location.href='/'">
       <img src="/static/download-removebg-preview.png" alt="Voltar">
     </button>
+    <div class="header-left">
+      <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+      <h1>Semente Diária</h1>
+    </div>
   </header>
 
   <main>
