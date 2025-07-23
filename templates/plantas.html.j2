@@ -9,11 +9,129 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #dac8b3; font-family: Arial, sans-serif; min-height: 100vh; padding-bottom: 120px; }
         
-        header { display: flex; background: green; width: 100%; padding: 1rem; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .header-left { display: flex; align-items: center; }
-        .header-left h1 { color: white; margin-left: 1rem; }
-        .nav-links { display: flex; gap: 1rem; }
-        .nav-links a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; }
+        header {
+            display: flex;
+            background-color: green;
+            width: 100%;
+            margin: 0;
+            padding: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .logo{
+            position: relative;
+            left: 100px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left h1{
+            position: relative;
+            left: 125px;
+        }
+
+        header img {
+            border-radius: 50%;
+        }
+
+        header .header-left h1 {
+            color: aliceblue;
+            margin: 0 20px 0 0;
+        }
+
+        header nav {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            gap: 100px;
+        }
+
+        header nav h1 {
+            color: aliceblue;
+            margin: 0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 12px 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        header nav h1:hover {
+            transform: translateY(-3px);
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        header .header-right a {
+            color: aliceblue;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        header .header-right a:hover {
+            transform: scale(1.05);
+            background: rgba(255,255,255,0.1);
+        }
+
+        header hr {
+            height: 150px;
+            width: 2px;
+            background-color: white;
+            border: none;
+            margin: 0 20px;
+        }
+
+        .seta {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 3;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .seta:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: scale(1.1);
+        }
+
+        .seta img {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
         
         .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
         .page-title { text-align: center; color: #2d5016; margin-bottom: 2rem; font-size: 2.5rem; }
@@ -63,7 +181,6 @@
         .modal-content { background: white; margin: 1% auto; padding: 3rem; border-radius: 15px; width: 95%; max-width: 900px; max-height: 95vh; overflow-y: auto; }
         .close { color: #aaa; float: right; font-size: 45px; font-weight: bold; cursor: pointer; margin-top: -20px; }
         
-        /* Estilos específicos para elementos maiores no modal */
         .modal h2 { font-size: 2.2rem; color: #2d5016; margin-bottom: 2rem; text-align: center; }
         .modal h3 { font-size: 1.8rem; color: #2d5016; margin-bottom: 1.5rem; }
         .modal p { font-size: 1.2rem; line-height: 1.6; margin-bottom: 1rem; }
@@ -72,7 +189,6 @@
         .modal .plant-info { background-color: #f8f9fa; padding: 2rem; border-radius: 12px; margin-bottom: 2rem; }
         .modal-plant-image { max-width: 600px; max-height: 400px; object-fit: cover; border-radius: 15px; margin: 2rem 0; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         
-        /* Formulário no modal de edição com elementos maiores */
         .modal .form-group { margin-bottom: 1.5rem; }
         .modal .form-group label { font-size: 1.1rem; font-weight: bold; margin-bottom: 0.8rem; color: #2d5016; }
         .modal .form-group input, .modal .form-group select, .modal .form-group textarea { 
@@ -98,7 +214,6 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
-        /* Botões do modal maiores */
         .modal .modal-buttons { 
             display: flex; 
             gap: 1.5rem; 
@@ -120,10 +235,16 @@
 </head>
 <body>
     <header>
-        <div class="header-left"><h1>🌱 Minhas Plantas</h1></div>
-        <div class="nav-links">
-            <a href="/index">Início</a>
-            <a href="/logout">Sair</a>
+        <div class="header-left">
+            <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo" width="60" height="60">
+            <h1>Semente Diária</h1>
+            <button class="seta" onclick="window.location.href='/'">
+                <img src="/static/download-removebg-preview.png" alt="Voltar">
+            </button>
+        </div>
+        
+        <div class="header-right">
+            <a href="/logout">Logout</a>
         </div>
     </header>
 
