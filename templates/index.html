@@ -2,18 +2,22 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semente Diária</title>
     <link rel="icon" href="{{ url_for('static', filename='logo.ico') }}" type="image/x-icon">
     <style>
-                * {
+        * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            padding: 0;
             background-color: #dac8b3;
             font-family: Arial, sans-serif;
+            padding-bottom: 80px; /* Espaço para o footer fixo */
+            min-height: 100vh;
+            position: relative;
         }
 
         @keyframes bounce {
@@ -30,12 +34,15 @@
             display: flex;
             background-color: green;
             width: 100%;
-            margin: 0;
             padding: 1rem;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             animation: slideIn 0.6s ease-out;
+            flex-wrap: wrap;
+            min-height: 80px;
+            position: relative;
+            z-index: 100;
         }
 
         a {
@@ -48,36 +55,50 @@
         .header-left {
             display: flex;
             align-items: center;
+            flex: 0 0 auto;
         }
 
         header img {
-            margin-right: 20px;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
             border-radius: 50%;
             object-fit: cover;
         }
 
         header .header-left h1 {
             color: aliceblue;
-            margin: 0 20px 0 0;
+            margin: 0 15px 0 0;
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+
+        header hr {
+            height: 50px;
+            width: 2px;
+            background-color: white;
+            border: none;
+            margin: 0 15px;
         }
 
         header nav {
             display: flex;
             align-items: center;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            gap: 100px;
+            gap: 30px;
+            flex: 1;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         header nav h1 {
             color: aliceblue;
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 12px 8px;
+            padding: 10px 12px;
             border-radius: 8px;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
         header nav h1:hover {
@@ -89,14 +110,17 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex: 0 0 auto;
         }
 
         header .header-right a {
             color: aliceblue;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 20px;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
 
         header .header-right a:hover {
@@ -104,34 +128,31 @@
             background: rgba(255,255,255,0.1);
         }
 
-        header hr {
-            height: 150px;
-            width: 2px;
-            background-color: white;
-            border: none;
-            margin: 0 20px;
-        }
-
         main {
             padding: 1rem;
             animation: slideIn 0.8s ease;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         footer {
             background-color: green;
             text-align: center;
-            padding: 20px;
+            padding: 15px;
             width: 100%;
             position: fixed;
             bottom: 0;
             box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
             animation: slideIn 0.8s ease;
+            height: 60px;
+            z-index: 100;
         }
 
         .containershow {
             width: 90%;
-            max-width: 2000px;
-            height: 400px;
+            max-width: 1200px;
+            height: 350px;
             margin: 20px auto;
             position: relative;
             border-radius: 10px;
@@ -174,8 +195,8 @@
             left: 0;
             right: 0;
             color: white;
-            padding: 20px;
-            font-size: 1.2rem;
+            padding: 15px;
+            font-size: 1.1rem;
             font-weight: bold;
             background: rgba(0, 0, 0, 0.7);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
@@ -189,16 +210,16 @@
 
         .slide-nav {
             position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: rgba(255,255,255,0.5);
             cursor: pointer;
@@ -220,17 +241,20 @@
             gap: 20px;
             width: 100%;
             padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
+            width: 100%;
         }
 
         .card {
             position: relative;
-            height: 200px;
+            height: 180px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
@@ -276,8 +300,8 @@
             left: 0;
             right: 0;
             color: white;
-            padding: 20px;
-            font-size: 1.2rem;
+            padding: 15px;
+            font-size: 1.1rem;
             font-weight: bold;
             background: rgba(0, 0, 0, 0.7);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
@@ -290,33 +314,75 @@
             background: rgba(0, 0, 0, 0.8);
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             header nav {
-                position: static;
-                transform: none;
+                gap: 20px;
+            }
+            
+            .containershow {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .header-left {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+            }
+
+            header nav {
                 order: 2;
-                gap: 50px;
+                gap: 15px;
+                width: 100%;
+                justify-content: center;
             }
 
             .header-right {
                 order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+
+            header hr {
+                display: none;
+            }
+
+            .containershow {
+                height: 250px;
+            }
+
+            .cards-container {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             }
 
             .card {
-                height: 200px;
+                height: 160px;
             }
         }
 
         @media (max-width: 480px) {
             header {
-                flex-direction: column;
-                gap: 15px;
+                padding: 10px;
+            }
+
+            header .header-left h1 {
+                font-size: 1rem;
+            }
+
+            header nav h1 {
+                font-size: 0.9rem;
+                padding: 8px 10px;
             }
 
             header nav {
-                position: static;
-                transform: none;
-                gap: 30px;
+                gap: 10px;
             }
 
             .imgconttain {
@@ -328,7 +394,12 @@
             }
 
             .card {
-                height: 150px;
+                height: 140px;
+            }
+
+            .containershow {
+                height: 200px;
+                width: 95%;
             }
         }
     </style>
@@ -357,51 +428,53 @@
         
     </header>
 
-    <div class="containershow">
-        <div class="slide active">
-            <img src="{{ url_for('static', filename='Slide1.png') }}" alt="Slide 1">
-            <div class="slide-text">A natureza é o livro onde Deus escreveu sua sabedoria</div>
-        </div>
-        <div class="slide">
-            <img src="{{ url_for('static', filename='Slide2.png') }}" alt="Slide 2">
-            <div class="slide-text">Cada planta tem uma história para contar</div>
-        </div>
-        <div class="slide">
-            <img src="{{ url_for('static', filename='Slide3.png') }}" alt="Slide 3">
-            <div class="slide-text">Cultive hoje o jardim do amanhã</div>
-        </div>
-        
-        <div class="slide-nav">
-            <span class="dot active" onclick="currentSlide(1)"></span>
-            <span class="dot" onclick="currentSlide(2)"></span>
-            <span class="dot" onclick="currentSlide(3)"></span>
-        </div>
-    </div>
-        
-    <div class="imgconttain">
-        <div class="cards-container">
-            <div class="card">
-                <a href="{{ url_for('servicos') }}">
-                    <img src="{{ url_for('static', filename='1.png') }}" alt="Serviços">
-                    <div class="card-text">serviços</div>
-                </a>
+    <main>
+        <div class="containershow">
+            <div class="slide active">
+                <img src="{{ url_for('static', filename='Slide1.png') }}" alt="Slide 1">
+                <div class="slide-text">A natureza é o livro onde Deus escreveu sua sabedoria</div>
             </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='Slide2.png') }}" alt="Slide 2">
+                <div class="slide-text">Cada planta tem uma história para contar</div>
+            </div>
+            <div class="slide">
+                <img src="{{ url_for('static', filename='Slide3.png') }}" alt="Slide 3">
+                <div class="slide-text">Cultive hoje o jardim do amanhã</div>
+            </div>
+            
+            <div class="slide-nav">
+                <span class="dot active" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+            </div>
+        </div>
+            
+        <div class="imgconttain">
+            <div class="cards-container">
+                <div class="card">
+                    <a href="{{ url_for('servicos') }}">
+                        <img src="{{ url_for('static', filename='1.png') }}" alt="Loja">
+                        <div class="card-text">Loja</div>
+                    </a>
+                </div>
 
-            <div class="card">
-                <a href="{{ url_for('plantas') }}">
-                    <img src="{{ url_for('static', filename='2.png') }}" alt="Plantas">
-                    <div class="card-text">plantas</div>
-                </a>
-            </div>
+                <div class="card">
+                    <a href="{{ url_for('plantas') }}">
+                        <img src="{{ url_for('static', filename='2.png') }}" alt="Plantas">
+                        <div class="card-text">Minhas Plantas</div>
+                    </a>
+                </div>
 
-            <div class="card">
-                <a href="{{ url_for('calendario') }}">
-                    <img src="{{ url_for('static', filename='3.png') }}" alt="Calendário">
-                    <div class="card-text">calendário</div>
-                </a>
+                <div class="card">
+                    <a href="{{ url_for('calendario') }}">
+                        <img src="{{ url_for('static', filename='3.png') }}" alt="Calendário">
+                        <div class="card-text">Calendário de Projetos</div>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <footer>
     </footer>
@@ -436,7 +509,7 @@
             const scrolled = window.pageYOffset;
             const parallax = document.querySelector('.containershow');
             if (parallax) {
-                parallax.style.transform = `translateY(${scrolled * 0.1}px)`;
+                parallax.style.transform = `translateY(${scrolled * 0.1}px) scale(1.02)`;
             }
         });
     </script>
