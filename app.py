@@ -1,13 +1,17 @@
 from flask import Flask, render_template, request, redirect, session, flash
-import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from functools import wraps
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from PIL import Image
 import re
 import os
-from PIL import Image
 import uuid
+import smtplib
+import json
+import sqlite3
 
 app = Flask(__name__)
 app.secret_key = "@Darel230109"
@@ -16,6 +20,11 @@ UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 MAX_FILE_SIZE = 5 * 1024 * 1024
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USER = 'adrelwilion@gmail.com'  
+EMAIL_PASS = '@Darel230109'     
+EMAIL_DESTINO = 'adrelwilion@gmail.com'
 
 # ========== FUNÇÕES UTILITÁRIAS ==========
 
@@ -86,6 +95,41 @@ def get_admin_projects():
     with get_db() as conn:
         return conn.execute('SELECT * FROM eventos_calendario WHERE usuario_id = ? ORDER BY data_inicio ASC', 
                            (admin_id,)).fetchall()
+def enviar_email_pedido(dados_pedido):
+    """Envia email com detalhes do pedido"""
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USER
+        msg['To'] = EMAIL_DESTINO
+        msg['Subject'] = f"Novo Pedido - #{dados_pedido['id']}"
+        
+        corpo = f"""
+        NOVO PEDIDO RECEBIDO
+        
+        Pedido: #{dados_pedido['id']}
+        Cliente: {dados_pedido['cliente']}
+        Email: {dados_pedido['email']}
+        
+        ENDEREÇO DE ENTREGA:
+        {dados_pedido['endereco']}
+        
+        ITENS DO PEDIDO:
+        {dados_pedido['itens']}
+        
+        TOTAL: R$ {dados_pedido['total']}
+        Data: {dados_pedido['data']}
+        """
+        
+        msg.attach(MIMEText(corpo, 'plain'))
+        
+        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        server.starttls()
+        server.login(EMAIL_USER, EMAIL_PASS)
+        server.send_message(msg)
+        server.quit()
+        return True
+    except:
+        return False
 
 # ========== DECORADORES ==========
 
@@ -191,6 +235,7 @@ def init_db():
         add_column_if_not_exists('usuarios', 'email', 'email TEXT')
         add_column_if_not_exists('noticias', 'data_publicacao', 'data_publicacao TEXT')
         add_column_if_not_exists('plantas', 'imagem', 'imagem TEXT')
+        add_column_if_not_exists('pedidos', 'endereco', 'endereco TEXT')
         
         # Inserir usuários padrão se não existirem
         cursor.execute('SELECT COUNT(*) FROM usuarios')
@@ -631,6 +676,64 @@ def excluir_projeto():
             flash('Projeto não encontrado!', 'error')
     
     return redirect('/projetos')
+
+# ========== SISTEMA DE LOJA ==========
+
+@app.route('/finalizar_compra', methods=['POST'])
+@login_required
+def finalizar_compra_route():
+    """Processa finalização da compra"""
+    try:
+        dados = request.get_json()
+        carrinho = dados.get('carrinho', [])
+        endereco = dados.get('endereco', '').strip()
+        
+        if not carrinho or not endereco:
+            return {'success': False, 'message': 'Carrinho vazio ou endereço não informado'}
+        
+        usuario_id = get_user_id(session['usuario'])
+        total = sum(item['preco'] * item['quantidade'] for item in carrinho)
+        
+        with get_db() as conn:
+            # Inserir pedido
+            cursor = conn.cursor()
+            cursor.execute('''INSERT INTO pedidos (usuario_id, total, endereco, data_pedido) 
+                             VALUES (?, ?, ?, ?)''',
+                          (usuario_id, total, endereco, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+            
+            pedido_id = cursor.lastrowid
+            
+            # Inserir itens do pedido
+            for item in carrinho:
+                cursor.execute('''INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario)
+                                 VALUES (?, ?, ?, ?)''',
+                              (pedido_id, item['id'], item['quantidade'], item['preco']))
+            
+            # Buscar dados do usuário
+            usuario = conn.execute('SELECT nome, email FROM usuarios WHERE id = ?', (usuario_id,)).fetchone()
+            
+            # Preparar dados para email
+            itens_texto = '\n'.join([f"- {item['nome']} (x{item['quantidade']}) - R$ {item['preco']:.2f}" 
+                                   for item in carrinho])
+            
+            dados_email = {
+                'id': pedido_id,
+                'cliente': usuario['nome'],
+                'email': usuario['email'],
+                'endereco': endereco,
+                'itens': itens_texto,
+                'total': f"{total:.2f}",
+                'data': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            }
+            
+            # Enviar email
+            if enviar_email_pedido(dados_email):
+                return {'success': True, 'message': 'Compra finalizada! Enviaremos o código de pagamento para o seu email'}
+            else:
+                return {'success': True, 'message': 'Compra registrada! (Email temporariamente indisponível)'}
+                
+    except Exception as e:
+        return {'success': False, 'message': 'Erro ao processar compra'}
 
 # ========== CONFIGURAÇÕES ==========
 
