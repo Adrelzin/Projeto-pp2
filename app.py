@@ -95,6 +95,7 @@ def get_admin_projects():
     with get_db() as conn:
         return conn.execute('SELECT * FROM eventos_calendario WHERE usuario_id = ? ORDER BY data_inicio ASC', 
                            (admin_id,)).fetchall()
+    
 def enviar_email_pedido(dados_pedido):
     """Envia email com detalhes do pedido"""
     try:
@@ -122,13 +123,15 @@ def enviar_email_pedido(dados_pedido):
         
         msg.attach(MIMEText(corpo, 'plain'))
         
-        server = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
-        server.starttls()
-        server.login(EMAIL_USER, EMAIL_PASS)
-        server.send_message(msg)
-        server.quit()
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.ehlo()
+            server.starttls()
+            server.login(EMAIL_USER, EMAIL_PASS)
+            server.send_message(msg)
+        
         return True
-    except:
+    except Exception as e:
+        print(f"Erro ao enviar email: {str(e)}")
         return False
 
 # ========== DECORADORES ==========
@@ -685,6 +688,8 @@ def finalizar_compra_route():
     """Processa finalização da compra"""
     try:
         dados = request.get_json()
+        print(f"Dados recebidos: {dados}")  # Log dos dados recebidos
+        
         carrinho = dados.get('carrinho', [])
         endereco = dados.get('endereco', '').strip()
         
@@ -727,12 +732,16 @@ def finalizar_compra_route():
             }
             
             # Enviar email
-            if enviar_email_pedido(dados_email):
+            email_enviado = enviar_email_pedido(dados_email)
+            print(f"Email enviado: {email_enviado}")  # Log do status do email
+            
+            if email_enviado:
                 return {'success': True, 'message': 'Compra finalizada! Enviaremos o código de pagamento para o seu email'}
             else:
                 return {'success': True, 'message': 'Compra registrada! (Email temporariamente indisponível)'}
                 
     except Exception as e:
+        print(f"Erro ao processar compra: {str(e)}")  # Log de erro
         return {'success': False, 'message': 'Erro ao processar compra'}
 
 # ========== CONFIGURAÇÕES ==========
