@@ -345,12 +345,29 @@
         </div>
     </div>
 
+    <div id="endereco-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModalEndereco()">&times;</span>
+        <h2>📍 Endereço de Entrega</h2>
+        <form id="endereco-form">
+            <div style="margin-bottom: 15px;">
+                <label>Endereço completo:</label>
+                <textarea id="endereco-input" placeholder="Rua, número, complemento, bairro, cidade, CEP..." 
+                         style="width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; resize: vertical;" required></textarea>
+            </div>
+                <div style="text-align: center;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalEndereco()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar Compra</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 Semente Diária - Todos os direitos reservados</p>
     </footer>
 
     <script>
-        // Dados dos produtos (simulando uma API)
         const produtos = [
             {
                 id: 1,
@@ -508,19 +525,17 @@
             document.getElementById('produto-modal').style.display = 'none';
         }
 
-        // Finalizar compra
         function finalizarCompra() {
             if (carrinho.length === 0) {
                 alert('Carrinho vazio!');
                 return;
             }
+            document.getElementById('endereco-modal').style.display = 'block';
+        }
 
-            const total = carrinho.reduce((sum, item) => sum + (item.preco * item.quantidade), 0);
-            alert(`Compra finalizada! Total: R$ ${total.toFixed(2)}\n\nObrigado pela preferência!`);
-            
-            carrinho = [];
-            atualizarCarrinho();
-            toggleCarrinho();
+        function fecharModalEndereco() {
+            document.getElementById('endereco-modal').style.display = 'none';
+            document.getElementById('endereco-input').value = '';
         }
 
         // Filtros
@@ -558,11 +573,53 @@
         atualizarCarrinho();
 
         window.onclick = function(event) {
-            const modal = document.getElementById('produto-modal');
-            if (event.target == modal) {
+            const modalProduto = document.getElementById('produto-modal');
+            const modalEndereco = document.getElementById('endereco-modal');
+            
+            if (event.target == modalProduto) {
                 fecharModal();
             }
+            if (event.target == modalEndereco) {
+                fecharModalEndereco();
+            }
         }
+        
+        document.getElementById('endereco-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const endereco = document.getElementById('endereco-input').value.trim();
+            if (!endereco) {
+                alert('Por favor, informe o endereço!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/finalizar_compra', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        carrinho: carrinho,
+                        endereco: endereco
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(result.message);
+                    carrinho = [];
+                    atualizarCarrinho();
+                    toggleCarrinho();
+                    fecharModalEndereco();
+                } else {
+                    alert('Erro: ' + result.message);
+                }
+            } catch (error) {
+                alert('Erro ao processar compra. Tente novamente.');
+            }
+        });
     </script>
 </body>
 </html>
