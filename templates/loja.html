@@ -17,43 +17,75 @@
             padding-bottom: 80px;
         }
 
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         header {
             display: flex;
             background-color: green;
             width: 100%;
-            margin: 0;
             padding: 1rem;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.6s ease-out;
+            position: relative;
+            min-height: 80px;
         }
 
         .header-left {
             display: flex;
             align-items: center;
+            gap: 15px;
+            margin-left: 60px;
         }
 
-        header .header-left h1 {
+        .header-left h1 {
             color: aliceblue;
             margin: 0;
+            font-size: clamp(1rem, 4vw, 1.8rem);
+            white-space: nowrap;
         }
 
-        header nav {
+        .logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .seta {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 3;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
-            gap: 30px;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        header nav a {
-            color: aliceblue;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 5px;
-            transition: background 0.3s;
+        .seta:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-50%) scale(1.1);
         }
 
-        header nav a:hover {
-            background: rgba(255,255,255,0.1);
+        .seta img {
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
         }
 
         .header-right {
@@ -62,16 +94,36 @@
             gap: 20px;
         }
 
+        .header-right a {
+            color: aliceblue;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .header-right a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
         .carrinho-icon {
             color: aliceblue;
             font-size: 1.2em;
             position: relative;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .carrinho-icon:hover {
+            background: rgba(255,255,255,0.1);
         }
 
         .carrinho-count {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: 3px;
+            right: 8px;
             background: red;
             color: white;
             border-radius: 50%;
@@ -266,20 +318,69 @@
             color: white;
             margin: 0;
         }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 0.8rem;
+            }
+            
+            .header-left {
+                margin-left: 50px;
+                gap: 10px;
+            }
+            
+            .logo {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .seta {
+                width: 45px;
+                height: 45px;
+                left: 10px;
+            }
+            
+            .seta img {
+                width: 25px;
+                height: 25px;
+            }
+            
+            .header-left h1 {
+                white-space: normal;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-left h1 {
+                font-size: 0.9rem;
+            }
+            
+            .header-right {
+                gap: 10px;
+            }
+            
+            .header-right a {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .carrinho-icon {
+                padding: 6px 12px;
+                font-size: 1.1em;
+            }
+        }
     </style>
 </head>
 <body>
     <header>
+        <button class="seta" onclick="window.location.href='/'">
+            <img src="/static/download-removebg-preview.png" alt="Voltar">
+        </button>
         <div class="header-left">
-            <h1>🌱 Semente Diária - Loja</h1>
+            <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+            <h1>Semente Diária</h1>
         </div>
-        
-        <nav>
-            <a href="/index">Início</a>
-            <a href="/plantas">Plantas</a>
-            <a href="/campus">Campus</a>
-            <a href="/projetos">Projetos</a>
-        </nav>
 
         <div class="header-right">
             <div class="carrinho-icon" onclick="toggleCarrinho()">
