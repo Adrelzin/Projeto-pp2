@@ -652,12 +652,10 @@
             document.getElementById('submit-btn').style.background = '#007bff';
             document.getElementById('cancel-btn').style.display = 'inline-block';
 
-            // Scroll para o formulário
             document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
         }
 
         function cancelarEdicao() {
-            // Verificar se usuário é admin silenciosamente
             if (!isAdmin) {
                 return;
             }
