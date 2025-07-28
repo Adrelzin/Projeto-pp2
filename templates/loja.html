@@ -316,11 +316,8 @@
         </div>
 
         <div class="produtos-grid" id="produtos-grid">
-            <!-- Produtos serão carregados aqui via JavaScript -->
         </div>
     </main>
-
-    <!-- Carrinho Sidebar -->
     <div class="carrinho-sidebar" id="carrinho-sidebar">
         <div class="carrinho-header">
             <h3>Meu Carrinho</h3>
@@ -337,7 +334,6 @@
         </div>
     </div>
 
-    <!-- Modal Produto -->
     <div id="produto-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="fecharModal()">&times;</span>
@@ -421,7 +417,6 @@
 
         let carrinho = [];
 
-        // Renderizar produtos
         function renderizarProdutos(produtosList = produtos) {
             const grid = document.getElementById('produtos-grid');
             grid.innerHTML = '';
@@ -445,7 +440,6 @@
             });
         }
 
-        // Adicionar ao carrinho
         function adicionarAoCarrinho(produtoId) {
             const produto = produtos.find(p => p.id === produtoId);
             const itemExistente = carrinho.find(item => item.id === produtoId);
@@ -459,7 +453,6 @@
             atualizarCarrinho();
         }
 
-        // Atualizar carrinho
         function atualizarCarrinho() {
             const count = document.getElementById('carrinho-count');
             const conteudo = document.getElementById('carrinho-conteudo');
@@ -489,19 +482,15 @@
             total.textContent = `Total: R$ ${totalPreco.toFixed(2)}`;
         }
 
-        // Remover do carrinho
         function removerDoCarrinho(produtoId) {
             carrinho = carrinho.filter(item => item.id !== produtoId);
             atualizarCarrinho();
         }
 
-        // Toggle carrinho
         function toggleCarrinho() {
             const sidebar = document.getElementById('carrinho-sidebar');
             sidebar.classList.toggle('open');
         }
-
-        // Ver detalhes
         function verDetalhes(produtoId) {
             const produto = produtos.find(p => p.id === produtoId);
             const detalhes = document.getElementById('produto-detalhes');
@@ -520,7 +509,6 @@
             document.getElementById('produto-modal').style.display = 'block';
         }
 
-        // Fechar modal
         function fecharModal() {
             document.getElementById('produto-modal').style.display = 'none';
         }
@@ -538,7 +526,6 @@
             document.getElementById('endereco-input').value = '';
         }
 
-        // Filtros
         document.getElementById('categoria-filter').addEventListener('change', filtrarProdutos);
         document.getElementById('preco-filter').addEventListener('change', filtrarProdutos);
         document.getElementById('search-input').addEventListener('input', filtrarProdutos);
@@ -568,7 +555,6 @@
             renderizarProdutos(produtosFiltrados);
         }
 
-        // Inicializar
         renderizarProdutos();
         atualizarCarrinho();
 
