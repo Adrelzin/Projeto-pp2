@@ -232,15 +232,13 @@ def init_db():
             columns = [col[1] for col in cursor.fetchall()]
             if column not in columns:
                 cursor.execute(f'ALTER TABLE {table} ADD COLUMN {definition}')
-        
-        # Adicionar colunas que podem estar faltando
+
         add_column_if_not_exists('usuarios', 'senha_original', 'senha_original TEXT')
         add_column_if_not_exists('usuarios', 'email', 'email TEXT')
         add_column_if_not_exists('noticias', 'data_publicacao', 'data_publicacao TEXT')
         add_column_if_not_exists('plantas', 'imagem', 'imagem TEXT')
         add_column_if_not_exists('pedidos', 'endereco', 'endereco TEXT')
-        
-        # Inserir usuários padrão se não existirem
+
         cursor.execute('SELECT COUNT(*) FROM usuarios')
         if cursor.fetchone()[0] == 0:
             users = [
@@ -250,8 +248,7 @@ def init_db():
             for nome, email, senha in users:
                 cursor.execute('INSERT INTO usuarios (nome, email, senha, senha_original) VALUES (?, ?, ?, ?)',
                              (nome, email, generate_password_hash(senha), senha))
-        
-        # Inserir produtos padrão se não existirem
+
         cursor.execute('SELECT COUNT(*) FROM produtos')
         if cursor.fetchone()[0] == 0:
             produtos_padrao = [
@@ -394,8 +391,7 @@ def adicionar_planta():
     if not usuario_id:
         flash('Usuário não encontrado!', 'error')
         return redirect('/plantas')
-    
-    # Processamento de imagem
+        
     arquivo = request.files.get('imagem')
     if arquivo and arquivo.filename:
         arquivo.seek(0, os.SEEK_END)
@@ -557,13 +553,11 @@ def excluir_usuario(nome_usuario):
         return redirect('/usuarios')
     
     with get_db() as conn:
-        # Remove imagens das plantas do usuário
         plantas = conn.execute('SELECT imagem FROM plantas WHERE usuario_id = ?', (usuario_id,)).fetchall()
         for planta in plantas:
             if planta['imagem']:
                 remover_imagem(planta['imagem'])
         
-        # Remove dados do usuário
         conn.execute('DELETE FROM plantas WHERE usuario_id = ?', (usuario_id,))
         conn.execute('DELETE FROM usuarios WHERE nome = ?', (nome_usuario,))
     
@@ -688,7 +682,7 @@ def finalizar_compra_route():
     """Processa finalização da compra"""
     try:
         dados = request.get_json()
-        print(f"Dados recebidos: {dados}")  # Log dos dados recebidos
+        print(f"Dados recebidos: {dados}") 
         
         carrinho = dados.get('carrinho', [])
         endereco = dados.get('endereco', '').strip()
@@ -700,7 +694,6 @@ def finalizar_compra_route():
         total = sum(item['preco'] * item['quantidade'] for item in carrinho)
         
         with get_db() as conn:
-            # Inserir pedido
             cursor = conn.cursor()
             cursor.execute('''INSERT INTO pedidos (usuario_id, total, endereco, data_pedido) 
                              VALUES (?, ?, ?, ?)''',
@@ -708,16 +701,13 @@ def finalizar_compra_route():
             
             pedido_id = cursor.lastrowid
             
-            # Inserir itens do pedido
             for item in carrinho:
                 cursor.execute('''INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario)
                                  VALUES (?, ?, ?, ?)''',
                               (pedido_id, item['id'], item['quantidade'], item['preco']))
             
-            # Buscar dados do usuário
             usuario = conn.execute('SELECT nome, email FROM usuarios WHERE id = ?', (usuario_id,)).fetchone()
             
-            # Preparar dados para email
             itens_texto = '\n'.join([f"- {item['nome']} (x{item['quantidade']}) - R$ {item['preco']:.2f}" 
                                    for item in carrinho])
             
@@ -731,9 +721,8 @@ def finalizar_compra_route():
                 'data': datetime.now().strftime('%d/%m/%Y %H:%M:%S')
             }
             
-            # Enviar email
             email_enviado = enviar_email_pedido(dados_email)
-            print(f"Email enviado: {email_enviado}")  # Log do status do email
+            print(f"Email enviado: {email_enviado}")  
             
             if email_enviado:
                 return {'success': True, 'message': 'Compra finalizada! Enviaremos o código de pagamento para o seu email'}
@@ -741,7 +730,7 @@ def finalizar_compra_route():
                 return {'success': True, 'message': 'Compra registrada! (Email temporariamente indisponível)'}
                 
     except Exception as e:
-        print(f"Erro ao processar compra: {str(e)}")  # Log de erro
+        print(f"Erro ao processar compra: {str(e)}")  
         return {'success': False, 'message': 'Erro ao processar compra'}
 
 # ========== CONFIGURAÇÕES ==========
